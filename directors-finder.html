@@ -14,13 +14,13 @@
 
 :root {
   --accent: #5aacff;
-  --accent-dim: rgba(90,172,255,0.15);
   --text: rgba(220,235,250,0.92);
   --text-dim: rgba(180,200,220,0.42);
   --text-bright: #eef6ff;
-  --red: #ff5050;
+  --red-btn: #e03030;
+  --red-warn: #ff5050;
   --green: #4ddf8a;
-  --surface: rgba(6,10,16,0.70);
+  --surface: rgba(6,10,16,0.72);
   --border: rgba(90,140,200,0.16);
   --border-hi: rgba(90,172,255,0.38);
 }
@@ -28,15 +28,17 @@
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 html, body { width: 100%; height: 100%; background: #000; font-family: 'Noto Sans JP', sans-serif; font-weight: 300; overflow: hidden; color: var(--text); }
 
+/* ── Camera layer ── */
 #camLayer { position: fixed; inset: 0; z-index: 0; background: #000; }
 #camVideo  { width: 100%; height: 100%; object-fit: cover; display: none; }
 #ov        { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-#levelCanvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+#levelCv   { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 
+/* ── Start screen ── */
 #startScreen {
   position: absolute; inset: 0; z-index: 5;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
-  background: rgba(0,0,0,0.78); cursor: pointer;
+  background: rgba(0,0,0,0.8); cursor: pointer;
 }
 .s-ring { width: 82px; height: 82px; border-radius: 50%; border: 1.5px solid rgba(90,172,255,0.38); display: flex; align-items: center; justify-content: center; position: relative; }
 .s-ring::after { content:''; position:absolute; inset:-14px; border-radius:50%; border:1px solid rgba(90,172,255,0.12); animation:rp 2.2s ease-in-out infinite; }
@@ -46,90 +48,115 @@ html, body { width: 100%; height: 100%; background: #000; font-family: 'Noto San
 .s-cam::after  { content:''; position:absolute; inset:5px; border-radius:50%; border:1.5px solid rgba(90,172,255,0.65); }
 #startScreen p { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.2em; color:rgba(90,172,255,0.55); text-transform:uppercase; }
 
+/* ── Flash ── */
 #flash { position:fixed; inset:0; background:#fff; opacity:0; pointer-events:none; z-index:50; transition:opacity .06s; }
 
-#ui { position:fixed; inset:0; z-index:10; pointer-events:none; }
+/* ── UI layer ── */
+#ui { position: fixed; inset: 0; z-index: 10; pointer-events: none; }
 
+/* ── Left sidebar ── */
 #sidebar {
-  position: absolute; right: 0; top: 0; bottom: 64px;
-  width: 88px;
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 76px;
   display: flex; flex-direction: column; align-items: center;
-  padding: 14px 0 14px; gap: 7px;
+  padding: 14px 0; gap: 8px;
   pointer-events: all;
 }
 
 .cyc-btn {
-  width: 72px;
+  width: 62px;
   background: var(--surface); border: 1px solid var(--border);
   border-radius: 8px;
   backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
   display: flex; flex-direction: column; align-items: center;
-  padding: 8px 6px; gap: 3px;
+  padding: 8px 4px 6px; gap: 3px;
   cursor: pointer; transition: border-color .15s;
   flex-shrink: 0; user-select: none;
 }
 .cyc-btn:active { border-color: var(--border-hi); }
-.cyc-val { font-family:'DM Mono',monospace; font-size:11px; font-weight:400; color:var(--text-bright); text-align:center; line-height:1.2; white-space:nowrap; }
-.cyc-dot { width:3px; height:3px; border-radius:50%; background:var(--text-dim); margin-top:1px; }
+.cyc-val { font-family:'DM Mono',monospace; font-size:10px; font-weight:400; color:var(--text-bright); text-align:center; line-height:1.25; white-space:nowrap; }
+.cyc-dot { width:3px; height:3px; border-radius:50%; background:var(--text-dim); }
 
-/* Camera switch — same style as cyc-btn */
-#switchBtn {
-  width: 72px;
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 8px;
-  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-  display: none; flex-direction: column; align-items: center;
-  padding: 8px 6px; gap: 3px;
-  cursor: pointer; transition: border-color .15s;
-  flex-shrink: 0; user-select: none;
-}
-#switchBtn.visible { display: flex; }
-#switchBtn:active { border-color: var(--border-hi); }
-#switchBtn .cyc-val { color: var(--text-bright); }
-
-#fovBox { margin-top: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 0; padding-right: 10px; }
-.fov-row { display: flex; align-items: baseline; gap: 3px; line-height: 1.75; }
-.fov-l { font-family:'DM Mono',monospace; font-size:8px; color:var(--text-dim); letter-spacing:.08em; }
-.fov-v { font-family:'DM Mono',monospace; font-size:13px; color:var(--accent); font-weight:400; }
-.fov-u { font-size:9px; color:var(--text-dim); }
-
-#fovWarn {
-  position: absolute; top: 46%; left: 50%; transform: translate(-50%,-50%);
-  font-family:'DM Mono',monospace; font-size:11px; color:var(--red);
-  letter-spacing:.06em; text-align:center; line-height:1.6;
-  background:rgba(0,0,0,0.55); border-radius:6px; padding:6px 14px;
-  display:none; pointer-events:none; white-space:nowrap;
+/* Color dot preview inside color button */
+.color-preview {
+  width: 10px; height: 10px; border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.2);
+  flex-shrink: 0;
 }
 
-/* Toast */
-#toast {
-  position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
-  font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.08em;
-  color: var(--text-dim); background: rgba(6,10,16,0.75);
-  border: 1px solid var(--border); border-radius: 20px;
-  padding: 5px 14px; pointer-events:none;
-  opacity: 0; transition: opacity .3s;
+/* ── Right side: vertical slider ── */
+#sliderArea {
+  position: absolute; right: 0; top: 0; bottom: 0;
+  width: 52px;
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center;
+  pointer-events: all;
+  padding: 24px 0;
 }
 
-#bottomBar {
-  position: absolute; left: 0; right: 0; bottom: 0; height: 64px;
+/* Vertical range slider via rotate */
+.vslider-wrap {
+  position: relative;
+  width: 200px; height: 52px; /* will be rotated */
+  transform: rotate(-90deg);
+  transform-origin: center center;
   display: flex; align-items: center;
-  padding: 0 14px 0 12px; gap: 10px;
+}
+
+input[type=range].vslider {
+  -webkit-appearance: none; appearance: none;
+  width: 100%; height: 2px;
+  background: transparent; outline: none; cursor: pointer; position: relative; z-index: 2;
+}
+input[type=range].vslider::-webkit-slider-runnable-track { height: 2px; background: rgba(90,140,200,0.2); border-radius: 1px; }
+input[type=range].vslider::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 28px; height: 28px; border-radius: 50%;
+  background: var(--accent); box-shadow: 0 0 12px rgba(90,172,255,.4);
+  margin-top: -13px; cursor: pointer; transition: box-shadow .15s;
+}
+input[type=range].vslider:active::-webkit-slider-thumb { box-shadow: 0 0 22px rgba(90,172,255,.6); }
+.vtrack-fill {
+  position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+  height: 2px; background: var(--accent); border-radius: 1px; pointer-events: none; z-index: 1;
+}
+
+/* ── Bottom: focal display + shutter ── */
+#bottomBar {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 60px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 14px 0 76px; /* left pad = sidebar width */
   pointer-events: all;
 }
-#focalDisp { font-family:'DM Mono',monospace; font-size:22px; font-weight:300; color:var(--text-bright); white-space:nowrap; flex-shrink:0; text-shadow:0 1px 10px rgba(0,0,0,.9); width:78px; text-align:right; }
-#focalDisp em { font-style:normal; font-size:11px; color:var(--text-dim); margin-left:2px; }
 
-.slider-wrap { flex:1; position:relative; height:32px; display:flex; align-items:center; }
-input[type=range] { -webkit-appearance:none; appearance:none; width:100%; height:2px; background:transparent; outline:none; cursor:pointer; position:relative; z-index:2; }
-input[type=range]::-webkit-slider-runnable-track { height:2px; background:rgba(90,140,200,0.18); border-radius:1px; }
-input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:26px; height:26px; border-radius:50%; background:var(--accent); box-shadow:0 0 12px rgba(90,172,255,.35); margin-top:-12px; cursor:pointer; }
-input[type=range]:active::-webkit-slider-thumb { box-shadow:0 0 22px rgba(90,172,255,.55); }
-.track-fill { position:absolute; left:0; top:50%; transform:translateY(-50%); height:2px; background:var(--accent); border-radius:1px; pointer-events:none; z-index:1; }
+#focalDisp {
+  font-family:'DM Mono',monospace; font-size:24px; font-weight:300;
+  color:var(--text-bright); white-space:nowrap;
+  text-shadow:0 1px 10px rgba(0,0,0,.9);
+}
+#focalDisp em { font-style:normal; font-size:12px; color:var(--text-dim); margin-left:2px; }
 
-#shutterBtn { width:52px; height:52px; border-radius:50%; flex-shrink:0; background:rgba(6,10,16,.55); border:2px solid rgba(220,235,250,.42); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .15s; }
-#shutterBtn::after { content:''; width:36px; height:36px; border-radius:50%; background:rgba(220,235,250,.82); transition:all .12s; }
-#shutterBtn:active::after { transform:scale(.88); background:#fff; }
+/* Shutter: red circle */
+#shutterBtn {
+  width: 56px; height: 56px; border-radius: 50%; flex-shrink: 0;
+  background: var(--red-btn);
+  border: 3px solid rgba(255,100,100,0.5);
+  box-shadow: 0 0 16px rgba(220,48,48,0.45);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all .15s;
+  pointer-events: all;
+}
+#shutterBtn::after { content:''; width:38px; height:38px; border-radius:50%; background:rgba(255,160,160,0.18); border:2px solid rgba(255,255,255,0.25); transition:all .12s; }
+#shutterBtn:active { transform: scale(.92); box-shadow: 0 0 24px rgba(220,48,48,0.7); }
+#shutterBtn:active::after { background:rgba(255,255,255,0.15); }
+
+/* ── Center warning ── */
+#fovWarn {
+  position: absolute; top: 46%; left: 50%; transform: translate(-50%,-50%);
+  font-family:'DM Mono',monospace; font-size:11px; color:var(--red-warn);
+  letter-spacing:.06em; text-align:center; line-height:1.6;
+  background:rgba(0,0,0,0.58); border-radius:6px; padding:6px 14px;
+  display:none; pointer-events:none; white-space:nowrap;
+}
 </style>
 </head>
 <body>
@@ -137,83 +164,100 @@ input[type=range]:active::-webkit-slider-thumb { box-shadow:0 0 22px rgba(90,172
 <div id="camLayer">
   <video id="camVideo" autoplay playsinline muted></video>
   <canvas id="ov"></canvas>
-  <canvas id="levelCanvas"></canvas>
+  <canvas id="levelCv"></canvas>
 </div>
 
 <div id="startScreen">
   <div class="s-ring"><div class="s-cam"></div></div>
   <p>タップしてカメラを起動</p>
 </div>
-
 <div id="flash"></div>
 
 <div id="ui">
+
+  <!-- Left sidebar: sensor / aspect / grid / color -->
   <div id="sidebar">
-    <div class="cyc-btn" id="btnSensor"><div class="cyc-val" id="valSensor">35mm</div><div class="cyc-dot"></div></div>
-    <div class="cyc-btn" id="btnAspect"><div class="cyc-val" id="valAspect">3:2</div><div class="cyc-dot"></div></div>
-    <div class="cyc-btn" id="btnGrid"><div class="cyc-val" id="valGrid">三分割</div><div class="cyc-dot"></div></div>
-    <button id="switchBtn">
-      <div class="cyc-val" id="valCam">広角</div>
+    <div class="cyc-btn" id="btnSensor">
+      <div class="cyc-val" id="valSensor">35mm</div>
       <div class="cyc-dot"></div>
-    </button>
-    <div id="fovBox">
-      <div class="fov-row"><span class="fov-l">H</span><span class="fov-v" id="hFov">—</span><span class="fov-u">°</span></div>
-      <div class="fov-row"><span class="fov-l">V</span><span class="fov-v" id="vFov">—</span><span class="fov-u">°</span></div>
-      <div class="fov-row"><span class="fov-l">D</span><span class="fov-v" id="dFov">—</span><span class="fov-u">°</span></div>
+    </div>
+    <div class="cyc-btn" id="btnAspect">
+      <div class="cyc-val" id="valAspect">3:2</div>
+      <div class="cyc-dot"></div>
+    </div>
+    <div class="cyc-btn" id="btnGrid">
+      <div class="cyc-val" id="valGrid">三分割</div>
+      <div class="cyc-dot"></div>
+    </div>
+    <div class="cyc-btn" id="btnColor">
+      <div class="color-preview" id="colorPreview"></div>
+      <div class="cyc-val" id="valColor">青</div>
+      <div class="cyc-dot"></div>
     </div>
   </div>
 
-  <div id="fovWarn">画角がカメラより広い範囲です</div>
-  <div id="toast"></div>
+  <!-- Right: vertical focal slider -->
+  <div id="sliderArea">
+    <div class="vslider-wrap">
+      <div class="vtrack-fill" id="vTrackFill"></div>
+      <input type="range" class="vslider" id="fSlider" min="0" step="1" value="4">
+    </div>
+  </div>
 
+  <!-- Warning -->
+  <div id="fovWarn">画角がカメラより広い範囲です</div>
+
+  <!-- Bottom: focal value + shutter -->
   <div id="bottomBar">
     <div id="focalDisp"><span id="fNum">50</span><em>mm</em></div>
-    <div class="slider-wrap">
-      <div class="track-fill" id="trackFill"></div>
-      <input type="range" id="fSlider" min="0" step="1" value="4">
-    </div>
     <button id="shutterBtn"></button>
   </div>
+
 </div>
 
 <script>
-// ── Constants ──
-const SENSORS  = {
+// ══════════════════════════════
+// Constants
+// ══════════════════════════════
+const SENSORS = {
   ff:   { w:36.0, h:24.0, label:'FF 36×24mm',        disp:'35mm'  },
   apsc: { w:23.5, h:15.6, label:'APS-C 23.5×15.6mm', disp:'APS-C' },
 };
-const STEPS   = [20,24,28,35,50,58,85,105,135,200,300,400,500,600];
+// Focal steps 20–200mm only
+const STEPS   = [20,24,28,35,50,58,85,105,135,200];
 const ASPECTS = ['3:2','1:1','16:9','21:9'];
 const AR_MAP  = {'3:2':[3,2],'1:1':[1,1],'16:9':[16,9],'21:9':[21,9]};
-const GRIDS   = ['thirds','golden','level','none'];
-const GRID_LBL= {thirds:'三分割', golden:'黄金比', level:'水平器', none:'---'};
-const PHI     = (1+Math.sqrt(5))/2;
+const GRIDS   = ['thirds','spiral','level','none'];
+const GRID_LBL= {thirds:'三分割', spiral:'螺旋', level:'水準器', none:'---'};
+const COLORS  = [
+  { key:'blue',   hex:'#5aacff', name:'青'  },
+  { key:'yellow', hex:'#ffd95a', name:'黄'  },
+  { key:'red',    hex:'#ff5a5a', name:'赤'  },
+  { key:'white',  hex:'#f0f4ff', name:'白'  },
+];
+const PHI   = (1+Math.sqrt(5))/2;
 const G1 = 1/(PHI*PHI), G2 = 1/PHI;
 const FOV_BASE = 65;
-const ACCENT   = '#5aacff';
 
-// Zoom levels: wide=1.0 (main), ultrawide=0 (minimum, triggers lens switch on Pixel)
-const CAM_MODES = [
-  { label:'広角',   zoom: 1.0 },
-  { label:'超広角', zoom: 0.6 },  // 0.6 triggers ultrawide on most Pixels
-];
-
-// ── State ──
-let S = { sensorKey:'ff', fIdx:4, arIdx:0, gridIdx:0, camModeIdx:0 };
+// ══════════════════════════════
+// State
+// ══════════════════════════════
+let S = { sensorKey:'ff', fIdx:4, arIdx:0, gridIdx:0, colorIdx:0 };
 let stream=null, raf=null;
-let zoomSupported=false, minZoom=1, maxZoom=1;
 let tilt={roll:0,pitch:0}, gyroActive=false;
 
-// ── Frame geometry ──
+// ══════════════════════════════
+// Frame geometry — single source of truth
+// ══════════════════════════════
 function calcFrame(W, H) {
   const f=STEPS[S.fIdx], s=SENSORS[S.sensorKey];
   const [arW,arH]=AR_MAP[ASPECTS[S.arIdx]];
   const tHFov=2*Math.atan(s.w/(2*f))*180/Math.PI;
-  const hRatio=Math.min(tHFov/FOV_BASE,0.97);
+  const hRatio=Math.min(tHFov/FOV_BASE, 0.97);
   let bW=W*hRatio, bH=bW*(2/3);
-  const maxH=H*0.86;
+  const maxH=H*0.84;
   if(bH>maxH){bH=maxH;bW=bH*(3/2);}
-  const bX=(W-bW)/2, bY=(H-bH)/2-Math.round(H*0.04);
+  const bX=(W-bW)/2, bY=(H-bH)/2 - Math.round(H*0.03);
   const selAr=arW/arH;
   let cW,cH;
   if(selAr>=3/2){cW=bW;cH=bW/selAr;}else{cH=bH;cW=bH*selAr;}
@@ -221,39 +265,45 @@ function calcFrame(W, H) {
   return {bX,bY,bW,bH,cX,cY,cW,cH,tHFov};
 }
 
-function hexRgba(hex,a){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return `rgba(${r},${g},${b},${a})`;}
+// ══════════════════════════════
+// Helpers
+// ══════════════════════════════
+function hexRgba(hex,a){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
 function fovDeg(dim,f){return(2*Math.atan(dim/(2*f))*180/Math.PI).toFixed(1);}
+function curCol(){return COLORS[S.colorIdx].hex;}
 
-// ── Slider ──
+// ══════════════════════════════
+// Vertical slider
+// ══════════════════════════════
 const slider=document.getElementById('fSlider');
 slider.max=STEPS.length-1; slider.value=S.fIdx;
-function setFocal(i){S.fIdx=i;slider.value=i;document.getElementById('fNum').textContent=STEPS[i];updateFill();updateFov();draw();}
-function updateFill(){document.getElementById('trackFill').style.width=(S.fIdx/(STEPS.length-1)*100)+'%';}
+
+function setFocal(i){
+  S.fIdx=i; slider.value=i;
+  document.getElementById('fNum').textContent=STEPS[i];
+  updateVFill();
+  const f=STEPS[i], s=SENSORS[S.sensorKey];
+  document.getElementById('fovWarn').style.display=parseFloat(fovDeg(s.w,f))>=FOV_BASE*0.97?'block':'none';
+  draw();
+}
+function updateVFill(){
+  // Slider is rotated -90deg: value 0=bottom(visually), max=top
+  // fill goes from bottom, so pct = value/max
+  const pct=(S.fIdx/(STEPS.length-1)*100);
+  document.getElementById('vTrackFill').style.width=pct+'%';
+}
 slider.addEventListener('input',()=>setFocal(+slider.value));
 
-// ── FOV ──
-function updateFov(){
-  const f=STEPS[S.fIdx],s=SENSORS[S.sensorKey];
-  document.getElementById('hFov').textContent=fovDeg(s.w,f);
-  document.getElementById('vFov').textContent=fovDeg(s.h,f);
-  document.getElementById('dFov').textContent=fovDeg(Math.hypot(s.w,s.h),f);
-  document.getElementById('fovWarn').style.display=parseFloat(fovDeg(s.w,f))>=FOV_BASE*0.97?'block':'none';
-}
-
-// ── Toast ──
-let toastTimer=null;
-function showToast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.style.opacity='1';
-  clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>{t.style.opacity='0';},2200);
-}
-
-// ── Tap-cycle buttons ──
+// ══════════════════════════════
+// Sidebar tap-cycle
+// ══════════════════════════════
 document.getElementById('btnSensor').addEventListener('click',()=>{
   S.sensorKey=S.sensorKey==='ff'?'apsc':'ff';
   document.getElementById('valSensor').textContent=SENSORS[S.sensorKey].disp;
-  updateFov(); draw();
+  draw();
 });
 document.getElementById('btnAspect').addEventListener('click',()=>{
   S.arIdx=(S.arIdx+1)%ASPECTS.length;
@@ -266,35 +316,19 @@ document.getElementById('btnGrid').addEventListener('click',()=>{
   if(GRIDS[S.gridIdx]==='level') startGyro(); else stopGyro();
   draw();
 });
-
-// ── Camera switch (zoom-based) ──
-document.getElementById('switchBtn').addEventListener('click', async ()=>{
-  if(!stream) return;
-  S.camModeIdx=(S.camModeIdx+1)%CAM_MODES.length;
-  const mode=CAM_MODES[S.camModeIdx];
-  document.getElementById('valCam').textContent=mode.label;
-  await applyZoom(mode.zoom);
+document.getElementById('btnColor').addEventListener('click',()=>{
+  S.colorIdx=(S.colorIdx+1)%COLORS.length;
+  const c=COLORS[S.colorIdx];
+  document.getElementById('valColor').textContent=c.name;
+  document.getElementById('colorPreview').style.background=c.hex;
+  draw();
 });
+// Init color preview
+document.getElementById('colorPreview').style.background=COLORS[0].hex;
 
-async function applyZoom(targetZoom){
-  if(!stream) return;
-  const track=stream.getVideoTracks()[0];
-  if(!track) return;
-  const caps=track.getCapabilities?.();
-  if(!caps||!caps.zoom){
-    showToast('このデバイスはzoom切替に未対応です');
-    return;
-  }
-  const z=Math.max(caps.zoom.min, Math.min(caps.zoom.max, targetZoom));
-  try{
-    await track.applyConstraints({advanced:[{zoom:z}]});
-    showToast(`zoom: ${z.toFixed(1)}x`);
-  }catch(e){
-    showToast('zoom切替に失敗しました');
-  }
-}
-
-// ── Camera start ──
+// ══════════════════════════════
+// Camera
+// ══════════════════════════════
 document.getElementById('startScreen').addEventListener('click', startCam);
 
 async function startCam(){
@@ -304,172 +338,302 @@ async function startCam(){
       audio:false
     });
     await afterStart();
-    // Check zoom support
-    const track=stream.getVideoTracks()[0];
-    const caps=track.getCapabilities?.();
-    if(caps&&caps.zoom){
-      zoomSupported=true;
-      minZoom=caps.zoom.min; maxZoom=caps.zoom.max;
-      // Show switch button only if zoom range allows ultrawide (min < 1.0)
-      if(minZoom < 1.0 || maxZoom > 1.0){
-        document.getElementById('switchBtn').classList.add('visible');
-      }
-    }
   }catch{
     document.getElementById('startScreen').querySelector('p').textContent='カメラの許可が必要です';
   }
 }
-
 async function afterStart(){
   const v=document.getElementById('camVideo');
   v.srcObject=stream; v.style.display='block';
   document.getElementById('startScreen').style.display='none';
   return new Promise(res=>{
-    v.onloadedmetadata=()=>{resizeCv(); raf=requestAnimationFrame(loop); res();};
+    v.onloadedmetadata=()=>{ resizeCv(); raf=requestAnimationFrame(loop); res(); };
   });
 }
-
 function resizeCv(){
-  ['ov','levelCanvas'].forEach(id=>{
+  ['ov','levelCv'].forEach(id=>{
     const c=document.getElementById(id); c.width=window.innerWidth; c.height=window.innerHeight;
   });
 }
-window.addEventListener('resize',()=>{if(stream){resizeCv();draw();}});
-function loop(){draw();drawLevel();raf=requestAnimationFrame(loop);}
+window.addEventListener('resize',()=>{ if(stream){ resizeCv(); draw(); } });
+function loop(){ draw(); drawLevel(); raf=requestAnimationFrame(loop); }
 
-// ── Gyro ──
+// ══════════════════════════════
+// Gyro
+// ══════════════════════════════
 function startGyro(){
   if(gyroActive) return;
-  if(typeof DeviceOrientationEvent==='undefined'){showToast('水平器非対応');return;}
+  if(typeof DeviceOrientationEvent==='undefined') return;
   if(typeof DeviceOrientationEvent.requestPermission==='function'){
-    DeviceOrientationEvent.requestPermission().then(r=>{if(r==='granted')bindGyro();}).catch(()=>{});
-  }else{bindGyro();}
+    DeviceOrientationEvent.requestPermission().then(r=>{ if(r==='granted') bindGyro(); }).catch(()=>{});
+  } else { bindGyro(); }
 }
-function bindGyro(){window.addEventListener('deviceorientation',onOrient,true);gyroActive=true;}
-function stopGyro(){window.removeEventListener('deviceorientation',onOrient,true);gyroActive=false;tilt.roll=0;tilt.pitch=0;}
-function onOrient(e){tilt.roll=e.gamma||0;tilt.pitch=e.beta||0;}
+function bindGyro(){ window.addEventListener('deviceorientation',onOrient,true); gyroActive=true; }
+function stopGyro(){ window.removeEventListener('deviceorientation',onOrient,true); gyroActive=false; tilt.roll=0; tilt.pitch=0; }
+function onOrient(e){ tilt.roll=e.gamma||0; tilt.pitch=e.beta||0; }
 
-// ── Draw frame ──
+// ══════════════════════════════
+// Draw frame overlay
+// ══════════════════════════════
 function draw(){
   if(!stream) return;
-  const c=document.getElementById('ov'),ctx=c.getContext('2d');
-  const W=c.width,H=c.height;
+  const c=document.getElementById('ov'), ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
   ctx.clearRect(0,0,W,H);
+
   const {bX,bY,bW,bH,cX,cY,cW,cH,tHFov}=calcFrame(W,H);
   const clipped=tHFov>=FOV_BASE*0.97;
+  const col=curCol();
 
+  // Outer dim
   ctx.fillStyle='rgba(0,0,0,0.52)';
-  ctx.fillRect(0,0,W,bY);ctx.fillRect(0,bY+bH,W,H-bY-bH);
-  ctx.fillRect(0,bY,bX,bH);ctx.fillRect(bX+bW,bY,W-bX-bW,bH);
+  ctx.fillRect(0,0,W,bY); ctx.fillRect(0,bY+bH,W,H-bY-bH);
+  ctx.fillRect(0,bY,bX,bH); ctx.fillRect(bX+bW,bY,W-bX-bW,bH);
 
+  // Crop mask + ghost 3:2
   if(ASPECTS[S.arIdx]!=='3:2'){
     ctx.fillStyle='rgba(0,0,0,0.48)';
     if(cY>bY)        ctx.fillRect(bX,bY,bW,cY-bY);
     if(cY+cH<bY+bH) ctx.fillRect(bX,cY+cH,bW,(bY+bH)-(cY+cH));
     if(cX>bX)        ctx.fillRect(bX,cY,cX-bX,cH);
     if(cX+cW<bX+bW) ctx.fillRect(cX+cW,cY,(bX+bW)-(cX+cW),cH);
-    ctx.strokeStyle=hexRgba(ACCENT,0.12);ctx.lineWidth=1;ctx.setLineDash([4,5]);
-    ctx.strokeRect(bX,bY,bW,bH);ctx.setLineDash([]);
+    ctx.strokeStyle=hexRgba(col,0.12); ctx.lineWidth=1; ctx.setLineDash([4,5]);
+    ctx.strokeRect(bX,bY,bW,bH); ctx.setLineDash([]);
   }
 
   if(!clipped){
-    ctx.strokeStyle=hexRgba(ACCENT,0.85);ctx.lineWidth=1.5;
-    ctx.shadowColor=hexRgba(ACCENT,0.28);ctx.shadowBlur=8;
-    ctx.strokeRect(cX,cY,cW,cH);ctx.shadowBlur=0;
+    // Frame border — thicker
+    ctx.strokeStyle=hexRgba(col,0.88); ctx.lineWidth=2.5;
+    ctx.shadowColor=hexRgba(col,0.3); ctx.shadowBlur=10;
+    ctx.strokeRect(cX,cY,cW,cH); ctx.shadowBlur=0;
+
+    // Corner brackets
     const cs=Math.min(cW,cH)*0.1;
-    ctx.lineWidth=3;ctx.shadowColor=hexRgba(ACCENT,0.28);ctx.shadowBlur=12;
+    ctx.lineWidth=4; ctx.shadowColor=hexRgba(col,0.3); ctx.shadowBlur=14;
     [[cX,cY,1,1],[cX+cW,cY,-1,1],[cX,cY+cH,1,-1],[cX+cW,cY+cH,-1,-1]].forEach(([x,y,dx,dy])=>{
-      ctx.beginPath();ctx.moveTo(x+dx*cs,y);ctx.lineTo(x,y);ctx.lineTo(x,y+dy*cs);ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x+dx*cs,y); ctx.lineTo(x,y); ctx.lineTo(x,y+dy*cs); ctx.stroke();
     });
     ctx.shadowBlur=0;
+
+    // Grid / spiral
     const grid=GRIDS[S.gridIdx];
-    if(grid==='thirds'||grid==='golden'){
-      const ps=grid==='thirds'?[1/3,2/3]:[G1,G2];
-      ctx.strokeStyle=hexRgba(ACCENT,0.20);ctx.lineWidth=0.8;
-      ps.forEach(p=>{
-        ctx.beginPath();ctx.moveTo(cX+cW*p,cY);ctx.lineTo(cX+cW*p,cY+cH);ctx.stroke();
-        ctx.beginPath();ctx.moveTo(cX,cY+cH*p);ctx.lineTo(cX+cW,cY+cH*p);ctx.stroke();
+    if(grid==='thirds'){
+      ctx.strokeStyle=hexRgba(col,0.28); ctx.lineWidth=1.5;
+      [1/3,2/3].forEach(p=>{
+        ctx.beginPath(); ctx.moveTo(cX+cW*p,cY); ctx.lineTo(cX+cW*p,cY+cH); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(cX,cY+cH*p); ctx.lineTo(cX+cW,cY+cH*p); ctx.stroke();
       });
+    } else if(grid==='spiral'){
+      drawSpiral(ctx, cX, cY, cW, cH, col);
     }
-    const cx=cX+cW/2,cy=cY+cH/2,cl=10;
-    ctx.strokeStyle=hexRgba(ACCENT,0.26);ctx.lineWidth=1;
-    ctx.beginPath();ctx.moveTo(cx-cl,cy);ctx.lineTo(cx+cl,cy);ctx.moveTo(cx,cy-cl);ctx.lineTo(cx,cy+cl);ctx.stroke();
+
+    // Center cross
+    const cx=cX+cW/2, cy=cY+cH/2, cl=10;
+    ctx.strokeStyle=hexRgba(col,0.28); ctx.lineWidth=1.2;
+    ctx.beginPath(); ctx.moveTo(cx-cl,cy); ctx.lineTo(cx+cl,cy); ctx.moveTo(cx,cy-cl); ctx.lineTo(cx,cy+cl); ctx.stroke();
   }
 }
 
-// ── Draw level ──
-function drawLevel(){
-  const c=document.getElementById('levelCanvas'),ctx=c.getContext('2d');
-  const W=c.width,H=c.height;
-  ctx.clearRect(0,0,W,H);
-  if(GRIDS[S.gridIdx]!=='level') return;
-  const roll=tilt.roll,pitch=tilt.pitch;
-  const levelOk=Math.abs(roll)<1.0&&Math.abs(pitch)<1.0;
-  const col=levelOk?'#4ddf8a':ACCENT;
-  const cx=W/2,cy=H/2;
-  const lineLen=Math.min(W,H)*0.55;
-  const rad=roll*Math.PI/180;
-  ctx.save();ctx.translate(cx,cy);ctx.rotate(rad);
-  ctx.strokeStyle=hexRgba(col,0.75);ctx.lineWidth=1.5;ctx.setLineDash([8,6]);
-  ctx.beginPath();ctx.moveTo(-lineLen/2,0);ctx.lineTo(lineLen/2,0);ctx.stroke();
-  ctx.setLineDash([]);ctx.restore();
-  const bubR=22,maxOff=38;
-  const bx=cx+Math.max(-maxOff,Math.min(maxOff,roll*1.8));
-  const by=cy+Math.max(-maxOff,Math.min(maxOff,pitch*1.8));
-  ctx.strokeStyle=hexRgba(col,0.35);ctx.lineWidth=1;
-  ctx.beginPath();ctx.arc(cx,cy,bubR+10,0,Math.PI*2);ctx.stroke();
-  ctx.fillStyle=hexRgba(col,0.22);
-  ctx.beginPath();ctx.arc(bx,by,bubR,0,Math.PI*2);ctx.fill();
-  ctx.strokeStyle=hexRgba(col,0.85);ctx.lineWidth=1.5;
-  ctx.beginPath();ctx.arc(bx,by,bubR,0,Math.PI*2);ctx.stroke();
-  ctx.strokeStyle=hexRgba(col,0.45);ctx.lineWidth=1;
-  ctx.beginPath();ctx.moveTo(cx-6,cy);ctx.lineTo(cx+6,cy);ctx.moveTo(cx,cy-6);ctx.lineTo(cx,cy+6);ctx.stroke();
-  ctx.fillStyle=hexRgba(col,0.8);ctx.font='300 11px "DM Mono",monospace';ctx.textAlign='center';
-  ctx.fillText(`${roll>=0?'+':''}${roll.toFixed(1)}°`,cx,cy+bubR+24);
+// ══════════════════════════════
+// Golden spiral
+// Draws a Fibonacci spiral approximation using quarter-circle arcs
+// 4 orientations cycling around the frame
+// ══════════════════════════════
+function drawSpiral(ctx, x, y, w, h, col){
+  ctx.strokeStyle=hexRgba(col,0.72); ctx.lineWidth=1.8;
+  ctx.shadowColor=hexRgba(col,0.25); ctx.shadowBlur=6;
+  ctx.save(); ctx.beginPath();
+
+  // We draw the spiral in the top-left orientation, then offer 4 corners
+  // For simplicity: draw one canonical spiral that fits the frame
+  // PHI = 1.618..., so we divide the longer side by PHI repeatedly
+  const isWide = w >= h;
+  const drawOneSpiral = (ox,oy,sw,sh,flipX,flipY)=>{
+    // Fibonacci rectangles descending
+    let rx=ox, ry=oy, rw=sw, rh=sh;
+    ctx.moveTo(flipX?rx+rw:rx, flipY?ry+rh:ry);
+    for(let i=0;i<8;i++){
+      if(rw>=rh){
+        const sq=rh;
+        const cx2=flipX?rx+rw-sq:rx+sq;
+        const cy2=flipY?ry+rh:ry;
+        const startA=flipY?(flipX?0:Math.PI):(flipX?Math.PI*3/2:Math.PI/2);
+        const endA=startA+(flipX!==flipY?-Math.PI/2:Math.PI/2);
+        ctx.arc(
+          flipX?rx+rw-sq:rx+sq,
+          flipY?ry+rh:ry,
+          sq,
+          flipY?(flipX?-Math.PI/2:Math.PI*3/2):(flipX?Math.PI/2:-Math.PI/2),
+          flipY?(flipX?Math.PI*1:0):(flipX?0:Math.PI),
+          flipX!==flipY
+        );
+        if(flipX) rx=rx; else rx+=sq;
+        rw-=sq;
+      }else{
+        const sq=rw;
+        ctx.arc(
+          flipX?rx+rw:rx,
+          flipY?ry+rh-sq:ry+sq,
+          sq,
+          flipX?(flipY?Math.PI/2:0):(flipY?Math.PI/2:Math.PI),
+          flipX?(flipY?Math.PI:Math.PI*3/2):(flipY?0:Math.PI/2),
+          flipX!==flipY
+        );
+        if(flipY) ry=ry; else ry+=sq;
+        rh-=sq;
+      }
+      if(rw<1||rh<1) break;
+    }
+  };
+
+  // Use a clean, reliable spiral construction
+  ctx.clearRect && null; // noop
+  ctx.beginPath();
+  buildSpiral(ctx, x, y, w, h);
+  ctx.stroke();
+  ctx.shadowBlur=0;
+  ctx.restore();
 }
 
-// ── Shutter ──
+function buildSpiral(ctx, x, y, w, h){
+  // Canonical golden spiral in top-right corner orientation
+  // Break frame into Fibonacci rectangles, arc through each
+  let rects=[];
+  let rx=x,ry=y,rw=w,rh=h;
+  // Generate Fibonacci rectangle sequence
+  for(let i=0;i<9;i++){
+    if(rw>=rh){
+      const sq=rh;
+      rects.push({x:rx,y:ry,w:sq,h:sq,isH:true,flip:i%4});
+      rx+=sq; rw-=sq;
+    }else{
+      const sq=rw;
+      rects.push({x:rx,y:ry,w:sq,h:sq,isH:false,flip:i%4});
+      ry+=sq; rh-=sq;
+    }
+    if(rw<2||rh<2) break;
+  }
+
+  // Arc centers and angles for each Fibonacci rectangle
+  // Orientation cycles: right→down→left→up
+  const starts=[Math.PI,  Math.PI*3/2, 0,         Math.PI/2];
+  const ends  =[Math.PI/2, Math.PI,    Math.PI*3/2, 0       ];
+  const ccw   =[false,     false,       false,        false   ];
+  const cxOff =[1,0,0,1];  // corner x multiplier
+  const cyOff =[0,0,1,1];  // corner y multiplier
+
+  rects.forEach((r,i)=>{
+    const idx=i%4;
+    const arcX=r.x+r.w*cxOff[idx];
+    const arcY=r.y+r.h*cyOff[idx];
+    const rad=Math.min(r.w,r.h);
+    if(i===0) ctx.moveTo(arcX+rad*Math.cos(starts[idx]), arcY+rad*Math.sin(starts[idx]));
+    ctx.arc(arcX,arcY,rad,starts[idx],ends[idx],false);
+  });
+}
+
+// ══════════════════════════════
+// Draw level (cross-hair, no bubble)
+// ══════════════════════════════
+function drawLevel(){
+  const c=document.getElementById('levelCv'), ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
+  ctx.clearRect(0,0,W,H);
+  if(GRIDS[S.gridIdx]!=='level') return;
+
+  const roll=tilt.roll, pitch=tilt.pitch;
+  const levelOk=Math.abs(roll)<1.0 && Math.abs(pitch)<1.0;
+  const lineCol=levelOk?'#4ddf8a':curCol();
+  const cx=W/2, cy=H/2;
+
+  // Horizontal line (rotated by roll)
+  const hLen=Math.min(W,H)*0.5;
+  ctx.save(); ctx.translate(cx,cy); ctx.rotate(roll*Math.PI/180);
+  ctx.strokeStyle=hexRgba(lineCol,0.8); ctx.lineWidth=1.8;
+  ctx.beginPath(); ctx.moveTo(-hLen/2,0); ctx.lineTo(hLen/2,0); ctx.stroke();
+  ctx.restore();
+
+  // Vertical line (rotated by pitch, mapped to tilt forward/back)
+  const vLen=Math.min(W,H)*0.5;
+  ctx.save(); ctx.translate(cx,cy); ctx.rotate(pitch*Math.PI/180);
+  ctx.strokeStyle=hexRgba(lineCol,0.8); ctx.lineWidth=1.8;
+  ctx.beginPath(); ctx.moveTo(0,-vLen/2); ctx.lineTo(0,vLen/2); ctx.stroke();
+  ctx.restore();
+
+  // Center fixed cross (reference)
+  ctx.strokeStyle=hexRgba(lineCol,0.35); ctx.lineWidth=1;
+  const cl=8;
+  ctx.beginPath();
+  ctx.moveTo(cx-cl,cy); ctx.lineTo(cx+cl,cy);
+  ctx.moveTo(cx,cy-cl); ctx.lineTo(cx,cy+cl);
+  ctx.stroke();
+
+  // Angle readout
+  ctx.font='300 10px "DM Mono",monospace'; ctx.textAlign='center';
+  ctx.fillStyle=hexRgba(lineCol,0.75);
+  ctx.fillText(`${roll>=0?'+':''}${roll.toFixed(1)}°  ${pitch>=0?'+':''}${pitch.toFixed(1)}°`, cx, cy+vLen/2+18);
+}
+
+// ══════════════════════════════
+// Shutter
+// ══════════════════════════════
 document.getElementById('shutterBtn').addEventListener('click',()=>{
   if(!stream) return;
   const flash=document.getElementById('flash');
-  flash.style.opacity='1';setTimeout(()=>{flash.style.opacity='0';},80);
+  flash.style.opacity='1'; setTimeout(()=>{ flash.style.opacity='0'; },80);
+
   const v=document.getElementById('camVideo');
-  const vw=v.videoWidth,vh=v.videoHeight;
-  const off=document.createElement('canvas');off.width=vw;off.height=vh;
+  const vw=v.videoWidth, vh=v.videoHeight;
+  const off=document.createElement('canvas'); off.width=vw; off.height=vh;
   const ox=off.getContext('2d');
   ox.drawImage(v,0,0,vw,vh);
+
   const {cX,cY,cW,cH,tHFov}=calcFrame(vw,vh);
   const clipped=tHFov>=FOV_BASE*0.97;
+  const col=curCol();
+
   if(!clipped){
-    ox.strokeStyle=hexRgba(ACCENT,0.88);ox.lineWidth=Math.max(2,vw*0.0022);
+    // Frame — thicker on capture
+    ox.strokeStyle=hexRgba(col,0.9); ox.lineWidth=Math.max(3,vw*0.003);
     ox.strokeRect(cX,cY,cW,cH);
-    const cs=Math.min(cW,cH)*0.08;ox.lineWidth=Math.max(4,vw*0.004);
+    const cs=Math.min(cW,cH)*0.08;
+    ox.lineWidth=Math.max(5,vw*0.005);
     [[cX,cY,1,1],[cX+cW,cY,-1,1],[cX,cY+cH,1,-1],[cX+cW,cY+cH,-1,-1]].forEach(([x,y,dx,dy])=>{
-      ox.beginPath();ox.moveTo(x+dx*cs,y);ox.lineTo(x,y);ox.lineTo(x,y+dy*cs);ox.stroke();
+      ox.beginPath(); ox.moveTo(x+dx*cs,y); ox.lineTo(x,y); ox.lineTo(x,y+dy*cs); ox.stroke();
     });
   }
-  const f=STEPS[S.fIdx],s=SENSORS[S.sensorKey];
-  const fs=Math.round(vh*0.022),pd=Math.round(vh*0.016),lh=Math.round(fs*1.55);
-  const lines=[s.label,`${f}mm  ${ASPECTS[S.arIdx]}`,`H${fovDeg(s.w,f)}°  V${fovDeg(s.h,f)}°  D${fovDeg(Math.hypot(s.w,s.h),f)}°`];
-  const bkW=vw*0.44,bkH=lh*lines.length+pd*2,bkX=pd,bkY=vh-bkH-pd,rr=5;
+
+  // Data burn-in
+  const f=STEPS[S.fIdx], s=SENSORS[S.sensorKey];
+  const fs=Math.round(vh*0.022), pd=Math.round(vh*0.016), lh=Math.round(fs*1.55);
+  const lines=[
+    s.label,
+    `${f}mm  ${ASPECTS[S.arIdx]}`,
+    `H${fovDeg(s.w,f)}°  V${fovDeg(s.h,f)}°  D${fovDeg(Math.hypot(s.w,s.h),f)}°`,
+  ];
+  const bkW=vw*0.44, bkH=lh*lines.length+pd*2, bkX=pd, bkY=vh-bkH-pd, rr=5;
   ox.fillStyle='rgba(0,0,0,0.52)';
   ox.beginPath();
-  ox.moveTo(bkX+rr,bkY);ox.lineTo(bkX+bkW-rr,bkY);ox.arcTo(bkX+bkW,bkY,bkX+bkW,bkY+rr,rr);
-  ox.lineTo(bkX+bkW,bkY+bkH-rr);ox.arcTo(bkX+bkW,bkY+bkH,bkX+bkW-rr,bkY+bkH,rr);
-  ox.lineTo(bkX+rr,bkY+bkH);ox.arcTo(bkX,bkY+bkH,bkX,bkY+bkH-rr,rr);
-  ox.lineTo(bkX,bkY+rr);ox.arcTo(bkX,bkY,bkX+rr,bkY,rr);ox.closePath();ox.fill();
-  ox.font=`300 ${fs}px "DM Mono",monospace`;ox.fillStyle=hexRgba(ACCENT,0.9);
+  ox.moveTo(bkX+rr,bkY); ox.lineTo(bkX+bkW-rr,bkY); ox.arcTo(bkX+bkW,bkY,bkX+bkW,bkY+rr,rr);
+  ox.lineTo(bkX+bkW,bkY+bkH-rr); ox.arcTo(bkX+bkW,bkY+bkH,bkX+bkW-rr,bkY+bkH,rr);
+  ox.lineTo(bkX+rr,bkY+bkH); ox.arcTo(bkX,bkY+bkH,bkX,bkY+bkH-rr,rr);
+  ox.lineTo(bkX,bkY+rr); ox.arcTo(bkX,bkY,bkX+rr,bkY,rr); ox.closePath(); ox.fill();
+  ox.font=`300 ${fs}px "DM Mono",monospace`; ox.fillStyle=hexRgba(col,0.9);
   lines.forEach((ln,i)=>ox.fillText(ln,bkX+pd,bkY+pd+fs+i*lh));
+
   off.toBlob(blob=>{
-    const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;
+    const url=URL.createObjectURL(blob), a=document.createElement('a'); a.href=url;
     const now=new Date();
     const ts=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}${String(now.getSeconds()).padStart(2,'0')}`;
-    a.download=`df_${f}mm_${ts}.jpg`;a.click();URL.revokeObjectURL(url);
+    a.download=`df_${f}mm_${ts}.jpg`; a.click(); URL.revokeObjectURL(url);
   },'image/jpeg',0.92);
 });
 
-// ── Init ──
-updateFill(); updateFov();
+// ══════════════════════════════
+// Init
+// ══════════════════════════════
+updateVFill();
+setFocal(S.fIdx);
 </script>
 </body>
 </html>
