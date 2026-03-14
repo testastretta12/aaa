@@ -28,12 +28,11 @@
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 html, body { width: 100%; height: 100%; background: #000; font-family: 'Noto Sans JP', sans-serif; font-weight: 300; overflow: hidden; color: var(--text); }
 
-/* Camera */
 #camLayer { position: fixed; inset: 0; z-index: 0; background: #000; }
 #camVideo  { width: 100%; height: 100%; object-fit: cover; display: none; }
 #ov        { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+#levelCanvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 
-/* Start screen */
 #startScreen {
   position: absolute; inset: 0; z-index: 5;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
@@ -47,13 +46,10 @@ html, body { width: 100%; height: 100%; background: #000; font-family: 'Noto San
 .s-cam::after  { content:''; position:absolute; inset:5px; border-radius:50%; border:1.5px solid rgba(90,172,255,0.65); }
 #startScreen p { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.2em; color:rgba(90,172,255,0.55); text-transform:uppercase; }
 
-/* Flash */
 #flash { position:fixed; inset:0; background:#fff; opacity:0; pointer-events:none; z-index:50; transition:opacity .06s; }
 
-/* UI */
 #ui { position:fixed; inset:0; z-index:10; pointer-events:none; }
 
-/* Right sidebar — wider to fit text */
 #sidebar {
   position: absolute; right: 0; top: 0; bottom: 64px;
   width: 88px;
@@ -64,8 +60,7 @@ html, body { width: 100%; height: 100%; background: #000; font-family: 'Noto San
 
 .cyc-btn {
   width: 72px;
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: var(--surface); border: 1px solid var(--border);
   border-radius: 8px;
   backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
   display: flex; flex-direction: column; align-items: center;
@@ -74,52 +69,55 @@ html, body { width: 100%; height: 100%; background: #000; font-family: 'Noto San
   flex-shrink: 0; user-select: none;
 }
 .cyc-btn:active { border-color: var(--border-hi); }
-.cyc-val {
-  font-family: 'DM Mono', monospace;
-  font-size: 11px; font-weight: 400;
-  color: var(--text-bright); text-align: center;
-  line-height: 1.2; white-space: nowrap;
-}
-.cyc-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--text-dim); margin-top: 1px; }
+.cyc-val { font-family:'DM Mono',monospace; font-size:11px; font-weight:400; color:var(--text-bright); text-align:center; line-height:1.2; white-space:nowrap; }
+.cyc-dot { width:3px; height:3px; border-radius:50%; background:var(--text-dim); margin-top:1px; }
 
+/* Camera switch — same style as cyc-btn */
 #switchBtn {
-  width: 40px; height: 40px; border-radius: 50%;
+  width: 72px;
   background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px;
   backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-  display: none; align-items: center; justify-content: center;
-  cursor: pointer; color: var(--text-dim); transition: all .18s; margin-top: 4px;
+  display: none; flex-direction: column; align-items: center;
+  padding: 8px 6px; gap: 3px;
+  cursor: pointer; transition: border-color .15s;
+  flex-shrink: 0; user-select: none;
 }
 #switchBtn.visible { display: flex; }
-#switchBtn:active { color: var(--accent); border-color: var(--border-hi); }
+#switchBtn:active { border-color: var(--border-hi); }
+#switchBtn .cyc-val { color: var(--text-bright); }
 
-/* FOV readout */
 #fovBox { margin-top: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 0; padding-right: 10px; }
 .fov-row { display: flex; align-items: baseline; gap: 3px; line-height: 1.75; }
 .fov-l { font-family:'DM Mono',monospace; font-size:8px; color:var(--text-dim); letter-spacing:.08em; }
 .fov-v { font-family:'DM Mono',monospace; font-size:13px; color:var(--accent); font-weight:400; }
 .fov-u { font-size:9px; color:var(--text-dim); }
 
-/* Center warning */
 #fovWarn {
-  position: absolute; top: 46%; left: 50%; transform: translate(-50%, -50%);
+  position: absolute; top: 46%; left: 50%; transform: translate(-50%,-50%);
   font-family:'DM Mono',monospace; font-size:11px; color:var(--red);
   letter-spacing:.06em; text-align:center; line-height:1.6;
   background:rgba(0,0,0,0.55); border-radius:6px; padding:6px 14px;
   display:none; pointer-events:none; white-space:nowrap;
 }
 
-/* Bottom bar */
+/* Toast */
+#toast {
+  position: absolute; bottom: 80px; left: 50%; transform: translateX(-50%);
+  font-family:'DM Mono',monospace; font-size:10px; letter-spacing:.08em;
+  color: var(--text-dim); background: rgba(6,10,16,0.75);
+  border: 1px solid var(--border); border-radius: 20px;
+  padding: 5px 14px; pointer-events:none;
+  opacity: 0; transition: opacity .3s;
+}
+
 #bottomBar {
   position: absolute; left: 0; right: 0; bottom: 0; height: 64px;
   display: flex; align-items: center;
   padding: 0 14px 0 12px; gap: 10px;
   pointer-events: all;
 }
-#focalDisp {
-  font-family:'DM Mono',monospace; font-size:22px; font-weight:300;
-  color:var(--text-bright); white-space:nowrap; flex-shrink:0;
-  text-shadow:0 1px 10px rgba(0,0,0,.9); width:78px; text-align:right;
-}
+#focalDisp { font-family:'DM Mono',monospace; font-size:22px; font-weight:300; color:var(--text-bright); white-space:nowrap; flex-shrink:0; text-shadow:0 1px 10px rgba(0,0,0,.9); width:78px; text-align:right; }
 #focalDisp em { font-style:normal; font-size:11px; color:var(--text-dim); margin-left:2px; }
 
 .slider-wrap { flex:1; position:relative; height:32px; display:flex; align-items:center; }
@@ -129,17 +127,9 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance:none; width:26px; h
 input[type=range]:active::-webkit-slider-thumb { box-shadow:0 0 22px rgba(90,172,255,.55); }
 .track-fill { position:absolute; left:0; top:50%; transform:translateY(-50%); height:2px; background:var(--accent); border-radius:1px; pointer-events:none; z-index:1; }
 
-#shutterBtn {
-  width:52px; height:52px; border-radius:50%; flex-shrink:0;
-  background:rgba(6,10,16,.55); border:2px solid rgba(220,235,250,.42);
-  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
-  display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .15s;
-}
+#shutterBtn { width:52px; height:52px; border-radius:50%; flex-shrink:0; background:rgba(6,10,16,.55); border:2px solid rgba(220,235,250,.42); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all .15s; }
 #shutterBtn::after { content:''; width:36px; height:36px; border-radius:50%; background:rgba(220,235,250,.82); transition:all .12s; }
 #shutterBtn:active::after { transform:scale(.88); background:#fff; }
-
-/* Level canvas */
-#levelCanvas { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
 </style>
 </head>
 <body>
@@ -163,7 +153,8 @@ input[type=range]:active::-webkit-slider-thumb { box-shadow:0 0 22px rgba(90,172
     <div class="cyc-btn" id="btnAspect"><div class="cyc-val" id="valAspect">3:2</div><div class="cyc-dot"></div></div>
     <div class="cyc-btn" id="btnGrid"><div class="cyc-val" id="valGrid">三分割</div><div class="cyc-dot"></div></div>
     <button id="switchBtn">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6"/><path d="M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+      <div class="cyc-val" id="valCam">広角</div>
+      <div class="cyc-dot"></div>
     </button>
     <div id="fovBox">
       <div class="fov-row"><span class="fov-l">H</span><span class="fov-v" id="hFov">—</span><span class="fov-u">°</span></div>
@@ -173,6 +164,7 @@ input[type=range]:active::-webkit-slider-thumb { box-shadow:0 0 22px rgba(90,172
   </div>
 
   <div id="fovWarn">画角がカメラより広い範囲です</div>
+  <div id="toast"></div>
 
   <div id="bottomBar">
     <div id="focalDisp"><span id="fNum">50</span><em>mm</em></div>
@@ -187,8 +179,8 @@ input[type=range]:active::-webkit-slider-thumb { box-shadow:0 0 22px rgba(90,172
 <script>
 // ── Constants ──
 const SENSORS  = {
-  ff:   { w:36.0, h:24.0, label:'FF 36×24mm',        disp:'35mm'   },
-  apsc: { w:23.5, h:15.6, label:'APS-C 23.5×15.6mm', disp:'APS-C'  },
+  ff:   { w:36.0, h:24.0, label:'FF 36×24mm',        disp:'35mm'  },
+  apsc: { w:23.5, h:15.6, label:'APS-C 23.5×15.6mm', disp:'APS-C' },
 };
 const STEPS   = [20,24,28,35,50,58,85,105,135,200,300,400,500,600];
 const ASPECTS = ['3:2','1:1','16:9','21:9'];
@@ -199,58 +191,68 @@ const PHI     = (1+Math.sqrt(5))/2;
 const G1 = 1/(PHI*PHI), G2 = 1/PHI;
 const FOV_BASE = 65;
 const ACCENT   = '#5aacff';
-const INIT_IDX = 4; // 50mm
+
+// Zoom levels: wide=1.0 (main), ultrawide=0 (minimum, triggers lens switch on Pixel)
+const CAM_MODES = [
+  { label:'広角',   zoom: 1.0 },
+  { label:'超広角', zoom: 0.6 },  // 0.6 triggers ultrawide on most Pixels
+];
 
 // ── State ──
-let S = { sensorKey:'ff', fIdx:INIT_IDX, arIdx:0, gridIdx:0 };
-let stream=null, raf=null, cameras=[], camIdx=0;
-let tilt = { roll:0, pitch:0 }; // degrees
-let gyroActive = false;
+let S = { sensorKey:'ff', fIdx:4, arIdx:0, gridIdx:0, camModeIdx:0 };
+let stream=null, raf=null;
+let zoomSupported=false, minZoom=1, maxZoom=1;
+let tilt={roll:0,pitch:0}, gyroActive=false;
 
-// ── Frame geometry (single source of truth) ──
+// ── Frame geometry ──
 function calcFrame(W, H) {
-  const f  = STEPS[S.fIdx];
-  const s  = SENSORS[S.sensorKey];
-  const [arW,arH] = AR_MAP[ASPECTS[S.arIdx]];
-  const tHFov  = 2 * Math.atan(s.w/(2*f)) * 180/Math.PI;
-  const hRatio = Math.min(tHFov / FOV_BASE, 0.97);
-
-  let bW = W * hRatio, bH = bW * (2/3);
-  const maxH = H * 0.86;
-  if (bH > maxH) { bH = maxH; bW = bH * (3/2); }
-  const bX = (W-bW)/2, bY = (H-bH)/2 - Math.round(H*0.04);
-
-  const selAr = arW/arH;
-  let cW, cH;
-  if (selAr >= 3/2) { cW=bW; cH=bW/selAr; } else { cH=bH; cW=bH*selAr; }
+  const f=STEPS[S.fIdx], s=SENSORS[S.sensorKey];
+  const [arW,arH]=AR_MAP[ASPECTS[S.arIdx]];
+  const tHFov=2*Math.atan(s.w/(2*f))*180/Math.PI;
+  const hRatio=Math.min(tHFov/FOV_BASE,0.97);
+  let bW=W*hRatio, bH=bW*(2/3);
+  const maxH=H*0.86;
+  if(bH>maxH){bH=maxH;bW=bH*(3/2);}
+  const bX=(W-bW)/2, bY=(H-bH)/2-Math.round(H*0.04);
+  const selAr=arW/arH;
+  let cW,cH;
+  if(selAr>=3/2){cW=bW;cH=bW/selAr;}else{cH=bH;cW=bH*selAr;}
   const cX=bX+(bW-cW)/2, cY=bY+(bH-cH)/2;
-  return { bX,bY,bW,bH, cX,cY,cW,cH, tHFov };
+  return {bX,bY,bW,bH,cX,cY,cW,cH,tHFov};
 }
 
-// ── Helpers ──
-function hexRgba(hex,a){ const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16); return `rgba(${r},${g},${b},${a})`; }
-function fovDeg(dim,f){ return (2*Math.atan(dim/(2*f))*180/Math.PI).toFixed(1); }
+function hexRgba(hex,a){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return `rgba(${r},${g},${b},${a})`;}
+function fovDeg(dim,f){return(2*Math.atan(dim/(2*f))*180/Math.PI).toFixed(1);}
 
 // ── Slider ──
-const slider = document.getElementById('fSlider');
-slider.max = STEPS.length-1; slider.value = S.fIdx;
-function setFocal(i){ S.fIdx=i; slider.value=i; document.getElementById('fNum').textContent=STEPS[i]; updateFill(); updateFov(); draw(); }
-function updateFill(){ document.getElementById('trackFill').style.width=(S.fIdx/(STEPS.length-1)*100)+'%'; }
+const slider=document.getElementById('fSlider');
+slider.max=STEPS.length-1; slider.value=S.fIdx;
+function setFocal(i){S.fIdx=i;slider.value=i;document.getElementById('fNum').textContent=STEPS[i];updateFill();updateFov();draw();}
+function updateFill(){document.getElementById('trackFill').style.width=(S.fIdx/(STEPS.length-1)*100)+'%';}
 slider.addEventListener('input',()=>setFocal(+slider.value));
 
-// ── FOV readout ──
+// ── FOV ──
 function updateFov(){
-  const f=STEPS[S.fIdx], s=SENSORS[S.sensorKey];
+  const f=STEPS[S.fIdx],s=SENSORS[S.sensorKey];
   document.getElementById('hFov').textContent=fovDeg(s.w,f);
   document.getElementById('vFov').textContent=fovDeg(s.h,f);
   document.getElementById('dFov').textContent=fovDeg(Math.hypot(s.w,s.h),f);
   document.getElementById('fovWarn').style.display=parseFloat(fovDeg(s.w,f))>=FOV_BASE*0.97?'block':'none';
 }
 
+// ── Toast ──
+let toastTimer=null;
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.style.opacity='1';
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>{t.style.opacity='0';},2200);
+}
+
 // ── Tap-cycle buttons ──
 document.getElementById('btnSensor').addEventListener('click',()=>{
-  S.sensorKey = S.sensorKey==='ff'?'apsc':'ff';
-  document.getElementById('valSensor').textContent = SENSORS[S.sensorKey].disp;
+  S.sensorKey=S.sensorKey==='ff'?'apsc':'ff';
+  document.getElementById('valSensor').textContent=SENSORS[S.sensorKey].disp;
   updateFov(); draw();
 });
 document.getElementById('btnAspect').addEventListener('click',()=>{
@@ -261,96 +263,104 @@ document.getElementById('btnAspect').addEventListener('click',()=>{
 document.getElementById('btnGrid').addEventListener('click',()=>{
   S.gridIdx=(S.gridIdx+1)%GRIDS.length;
   document.getElementById('valGrid').textContent=GRID_LBL[GRIDS[S.gridIdx]];
-  // Start/stop gyro when level is selected
   if(GRIDS[S.gridIdx]==='level') startGyro(); else stopGyro();
   draw();
 });
 
-// ── Gyroscope for level ──
-function startGyro(){
-  if(gyroActive) return;
-  if(typeof DeviceOrientationEvent === 'undefined'){ alert('このデバイスは水平器に対応していません'); return; }
-  // iOS 13+ requires permission
-  if(typeof DeviceOrientationEvent.requestPermission === 'function'){
-    DeviceOrientationEvent.requestPermission().then(r=>{ if(r==='granted') bindGyro(); }).catch(()=>{});
-  } else {
-    bindGyro();
+// ── Camera switch (zoom-based) ──
+document.getElementById('switchBtn').addEventListener('click', async ()=>{
+  if(!stream) return;
+  S.camModeIdx=(S.camModeIdx+1)%CAM_MODES.length;
+  const mode=CAM_MODES[S.camModeIdx];
+  document.getElementById('valCam').textContent=mode.label;
+  await applyZoom(mode.zoom);
+});
+
+async function applyZoom(targetZoom){
+  if(!stream) return;
+  const track=stream.getVideoTracks()[0];
+  if(!track) return;
+  const caps=track.getCapabilities?.();
+  if(!caps||!caps.zoom){
+    showToast('このデバイスはzoom切替に未対応です');
+    return;
+  }
+  const z=Math.max(caps.zoom.min, Math.min(caps.zoom.max, targetZoom));
+  try{
+    await track.applyConstraints({advanced:[{zoom:z}]});
+    showToast(`zoom: ${z.toFixed(1)}x`);
+  }catch(e){
+    showToast('zoom切替に失敗しました');
   }
 }
-function bindGyro(){
-  window.addEventListener('deviceorientation', onOrient, true);
-  gyroActive = true;
-}
-function stopGyro(){
-  window.removeEventListener('deviceorientation', onOrient, true);
-  gyroActive = false;
-  tilt.roll=0; tilt.pitch=0;
-}
-function onOrient(e){
-  // gamma = roll (left/right tilt), beta = pitch (forward/back tilt)
-  tilt.roll  = e.gamma || 0;  // -90 to 90
-  tilt.pitch = e.beta  || 0;  // -180 to 180
-}
 
-// ── Camera ──
+// ── Camera start ──
 document.getElementById('startScreen').addEventListener('click', startCam);
-document.getElementById('switchBtn').addEventListener('click',()=>{
-  if(cameras.length<2) return;
-  camIdx=(camIdx+1)%cameras.length;
-  restartWith(cameras[camIdx].deviceId);
-});
-function isRear(d){ const l=(d.label||'').toLowerCase(); return !l.includes('front')&&!l.includes('selfie')&&!l.includes('user')&&!l.includes('facetime'); }
-async function enumCams(){
-  try{
-    const all=(await navigator.mediaDevices.enumerateDevices()).filter(d=>d.kind==='videoinput');
-    const rear=all.filter(isRear);
-    cameras=rear.length>0?rear:all;
-    document.getElementById('switchBtn').classList.toggle('visible',cameras.length>1);
-  }catch{ cameras=[]; }
-}
+
 async function startCam(){
   try{
-    stream=await navigator.mediaDevices.getUserMedia({ video:{facingMode:{ideal:'environment'},width:{ideal:1920}}, audio:false });
+    stream=await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:{ideal:'environment'}, width:{ideal:1920}},
+      audio:false
+    });
     await afterStart();
-    await enumCams();
-    const settings=stream.getVideoTracks()[0].getSettings();
-    const idx=cameras.findIndex(c=>c.deviceId===settings.deviceId);
-    camIdx=idx>=0?idx:0;
+    // Check zoom support
+    const track=stream.getVideoTracks()[0];
+    const caps=track.getCapabilities?.();
+    if(caps&&caps.zoom){
+      zoomSupported=true;
+      minZoom=caps.zoom.min; maxZoom=caps.zoom.max;
+      // Show switch button only if zoom range allows ultrawide (min < 1.0)
+      if(minZoom < 1.0 || maxZoom > 1.0){
+        document.getElementById('switchBtn').classList.add('visible');
+      }
+    }
   }catch{
     document.getElementById('startScreen').querySelector('p').textContent='カメラの許可が必要です';
   }
 }
-async function restartWith(deviceId){
-  stream?.getTracks().forEach(t=>t.stop()); stream=null;
-  cancelAnimationFrame(raf); raf=null;
-  try{
-    stream=await navigator.mediaDevices.getUserMedia({ video:{deviceId:{exact:deviceId},width:{ideal:1920}}, audio:false });
-    await afterStart();
-  }catch{}
-}
+
 async function afterStart(){
   const v=document.getElementById('camVideo');
   v.srcObject=stream; v.style.display='block';
   document.getElementById('startScreen').style.display='none';
-  return new Promise(res=>{ v.onloadedmetadata=()=>{ resizeCv(); raf=requestAnimationFrame(loop); res(); }; });
+  return new Promise(res=>{
+    v.onloadedmetadata=()=>{resizeCv(); raf=requestAnimationFrame(loop); res();};
+  });
 }
-function resizeCv(){ ['ov','levelCanvas'].forEach(id=>{ const c=document.getElementById(id); c.width=window.innerWidth; c.height=window.innerHeight; }); }
-window.addEventListener('resize',()=>{ if(stream){resizeCv();draw();} });
-function loop(){ draw(); drawLevel(); raf=requestAnimationFrame(loop); }
 
-// ── Draw frame overlay ──
+function resizeCv(){
+  ['ov','levelCanvas'].forEach(id=>{
+    const c=document.getElementById(id); c.width=window.innerWidth; c.height=window.innerHeight;
+  });
+}
+window.addEventListener('resize',()=>{if(stream){resizeCv();draw();}});
+function loop(){draw();drawLevel();raf=requestAnimationFrame(loop);}
+
+// ── Gyro ──
+function startGyro(){
+  if(gyroActive) return;
+  if(typeof DeviceOrientationEvent==='undefined'){showToast('水平器非対応');return;}
+  if(typeof DeviceOrientationEvent.requestPermission==='function'){
+    DeviceOrientationEvent.requestPermission().then(r=>{if(r==='granted')bindGyro();}).catch(()=>{});
+  }else{bindGyro();}
+}
+function bindGyro(){window.addEventListener('deviceorientation',onOrient,true);gyroActive=true;}
+function stopGyro(){window.removeEventListener('deviceorientation',onOrient,true);gyroActive=false;tilt.roll=0;tilt.pitch=0;}
+function onOrient(e){tilt.roll=e.gamma||0;tilt.pitch=e.beta||0;}
+
+// ── Draw frame ──
 function draw(){
   if(!stream) return;
-  const c=document.getElementById('ov'), ctx=c.getContext('2d');
-  const W=c.width, H=c.height;
+  const c=document.getElementById('ov'),ctx=c.getContext('2d');
+  const W=c.width,H=c.height;
   ctx.clearRect(0,0,W,H);
-
   const {bX,bY,bW,bH,cX,cY,cW,cH,tHFov}=calcFrame(W,H);
   const clipped=tHFov>=FOV_BASE*0.97;
 
   ctx.fillStyle='rgba(0,0,0,0.52)';
-  ctx.fillRect(0,0,W,bY); ctx.fillRect(0,bY+bH,W,H-bY-bH);
-  ctx.fillRect(0,bY,bX,bH); ctx.fillRect(bX+bW,bY,W-bX-bW,bH);
+  ctx.fillRect(0,0,W,bY);ctx.fillRect(0,bY+bH,W,H-bY-bH);
+  ctx.fillRect(0,bY,bX,bH);ctx.fillRect(bX+bW,bY,W-bX-bW,bH);
 
   if(ASPECTS[S.arIdx]!=='3:2'){
     ctx.fillStyle='rgba(0,0,0,0.48)';
@@ -358,130 +368,103 @@ function draw(){
     if(cY+cH<bY+bH) ctx.fillRect(bX,cY+cH,bW,(bY+bH)-(cY+cH));
     if(cX>bX)        ctx.fillRect(bX,cY,cX-bX,cH);
     if(cX+cW<bX+bW) ctx.fillRect(cX+cW,cY,(bX+bW)-(cX+cW),cH);
-    ctx.strokeStyle=hexRgba(ACCENT,0.12); ctx.lineWidth=1; ctx.setLineDash([4,5]);
-    ctx.strokeRect(bX,bY,bW,bH); ctx.setLineDash([]);
+    ctx.strokeStyle=hexRgba(ACCENT,0.12);ctx.lineWidth=1;ctx.setLineDash([4,5]);
+    ctx.strokeRect(bX,bY,bW,bH);ctx.setLineDash([]);
   }
 
   if(!clipped){
-    ctx.strokeStyle=hexRgba(ACCENT,0.85); ctx.lineWidth=1.5;
-    ctx.shadowColor=hexRgba(ACCENT,0.28); ctx.shadowBlur=8;
-    ctx.strokeRect(cX,cY,cW,cH); ctx.shadowBlur=0;
-
+    ctx.strokeStyle=hexRgba(ACCENT,0.85);ctx.lineWidth=1.5;
+    ctx.shadowColor=hexRgba(ACCENT,0.28);ctx.shadowBlur=8;
+    ctx.strokeRect(cX,cY,cW,cH);ctx.shadowBlur=0;
     const cs=Math.min(cW,cH)*0.1;
-    ctx.lineWidth=3; ctx.shadowColor=hexRgba(ACCENT,0.28); ctx.shadowBlur=12;
+    ctx.lineWidth=3;ctx.shadowColor=hexRgba(ACCENT,0.28);ctx.shadowBlur=12;
     [[cX,cY,1,1],[cX+cW,cY,-1,1],[cX,cY+cH,1,-1],[cX+cW,cY+cH,-1,-1]].forEach(([x,y,dx,dy])=>{
-      ctx.beginPath(); ctx.moveTo(x+dx*cs,y); ctx.lineTo(x,y); ctx.lineTo(x,y+dy*cs); ctx.stroke();
+      ctx.beginPath();ctx.moveTo(x+dx*cs,y);ctx.lineTo(x,y);ctx.lineTo(x,y+dy*cs);ctx.stroke();
     });
     ctx.shadowBlur=0;
-
     const grid=GRIDS[S.gridIdx];
     if(grid==='thirds'||grid==='golden'){
       const ps=grid==='thirds'?[1/3,2/3]:[G1,G2];
-      ctx.strokeStyle=hexRgba(ACCENT,0.20); ctx.lineWidth=0.8;
+      ctx.strokeStyle=hexRgba(ACCENT,0.20);ctx.lineWidth=0.8;
       ps.forEach(p=>{
-        ctx.beginPath(); ctx.moveTo(cX+cW*p,cY); ctx.lineTo(cX+cW*p,cY+cH); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(cX,cY+cH*p); ctx.lineTo(cX+cW,cY+cH*p); ctx.stroke();
+        ctx.beginPath();ctx.moveTo(cX+cW*p,cY);ctx.lineTo(cX+cW*p,cY+cH);ctx.stroke();
+        ctx.beginPath();ctx.moveTo(cX,cY+cH*p);ctx.lineTo(cX+cW,cY+cH*p);ctx.stroke();
       });
     }
-
-    const cx=cX+cW/2, cy=cY+cH/2, cl=10;
-    ctx.strokeStyle=hexRgba(ACCENT,0.26); ctx.lineWidth=1;
-    ctx.beginPath(); ctx.moveTo(cx-cl,cy); ctx.lineTo(cx+cl,cy); ctx.moveTo(cx,cy-cl); ctx.lineTo(cx,cy+cl); ctx.stroke();
+    const cx=cX+cW/2,cy=cY+cH/2,cl=10;
+    ctx.strokeStyle=hexRgba(ACCENT,0.26);ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(cx-cl,cy);ctx.lineTo(cx+cl,cy);ctx.moveTo(cx,cy-cl);ctx.lineTo(cx,cy+cl);ctx.stroke();
   }
 }
 
 // ── Draw level ──
 function drawLevel(){
-  const c=document.getElementById('levelCanvas'), ctx=c.getContext('2d');
-  const W=c.width, H=c.height;
+  const c=document.getElementById('levelCanvas'),ctx=c.getContext('2d');
+  const W=c.width,H=c.height;
   ctx.clearRect(0,0,W,H);
   if(GRIDS[S.gridIdx]!=='level') return;
-
-  const roll  = tilt.roll;   // degrees, tilt left/right
-  const pitch = tilt.pitch;  // degrees, tilt forward/back
-  const levelColor = (Math.abs(roll)<1.0 && Math.abs(pitch)<1.0) ? '#4ddf8a' : ACCENT;
-
-  const cx=W/2, cy=H/2;
-
-  // Horizon line (rotated by roll)
-  const lineLen = Math.min(W,H)*0.55;
-  const rad = roll * Math.PI/180;
-  ctx.save();
-  ctx.translate(cx, cy);
-  ctx.rotate(rad);
-  ctx.strokeStyle=hexRgba(levelColor,0.75); ctx.lineWidth=1.5; ctx.setLineDash([8,6]);
-  ctx.beginPath(); ctx.moveTo(-lineLen/2,0); ctx.lineTo(lineLen/2,0); ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.restore();
-
-  // Center bubble
-  const bubR  = 22;
-  const maxOff= 38;
-  const bx = cx + Math.max(-maxOff, Math.min(maxOff, roll*1.8));
-  const by = cy + Math.max(-maxOff, Math.min(maxOff, pitch*1.8));
-
-  // Outer ring
-  ctx.strokeStyle=hexRgba(levelColor,0.35); ctx.lineWidth=1;
-  ctx.beginPath(); ctx.arc(cx,cy,bubR+10,0,Math.PI*2); ctx.stroke();
-
-  // Bubble fill
-  ctx.fillStyle=hexRgba(levelColor,0.22);
-  ctx.beginPath(); ctx.arc(bx,by,bubR,0,Math.PI*2); ctx.fill();
-  ctx.strokeStyle=hexRgba(levelColor,0.85); ctx.lineWidth=1.5;
-  ctx.beginPath(); ctx.arc(bx,by,bubR,0,Math.PI*2); ctx.stroke();
-
-  // Center cross
-  ctx.strokeStyle=hexRgba(levelColor,0.45); ctx.lineWidth=1;
-  ctx.beginPath(); ctx.moveTo(cx-6,cy); ctx.lineTo(cx+6,cy); ctx.moveTo(cx,cy-6); ctx.lineTo(cx,cy+6); ctx.stroke();
-
-  // Roll readout
-  ctx.fillStyle=hexRgba(levelColor,0.8);
-  ctx.font='300 11px "DM Mono",monospace'; ctx.textAlign='center';
-  ctx.fillText(`${roll>=0?'+':''}${roll.toFixed(1)}°`, cx, cy+bubR+24);
+  const roll=tilt.roll,pitch=tilt.pitch;
+  const levelOk=Math.abs(roll)<1.0&&Math.abs(pitch)<1.0;
+  const col=levelOk?'#4ddf8a':ACCENT;
+  const cx=W/2,cy=H/2;
+  const lineLen=Math.min(W,H)*0.55;
+  const rad=roll*Math.PI/180;
+  ctx.save();ctx.translate(cx,cy);ctx.rotate(rad);
+  ctx.strokeStyle=hexRgba(col,0.75);ctx.lineWidth=1.5;ctx.setLineDash([8,6]);
+  ctx.beginPath();ctx.moveTo(-lineLen/2,0);ctx.lineTo(lineLen/2,0);ctx.stroke();
+  ctx.setLineDash([]);ctx.restore();
+  const bubR=22,maxOff=38;
+  const bx=cx+Math.max(-maxOff,Math.min(maxOff,roll*1.8));
+  const by=cy+Math.max(-maxOff,Math.min(maxOff,pitch*1.8));
+  ctx.strokeStyle=hexRgba(col,0.35);ctx.lineWidth=1;
+  ctx.beginPath();ctx.arc(cx,cy,bubR+10,0,Math.PI*2);ctx.stroke();
+  ctx.fillStyle=hexRgba(col,0.22);
+  ctx.beginPath();ctx.arc(bx,by,bubR,0,Math.PI*2);ctx.fill();
+  ctx.strokeStyle=hexRgba(col,0.85);ctx.lineWidth=1.5;
+  ctx.beginPath();ctx.arc(bx,by,bubR,0,Math.PI*2);ctx.stroke();
+  ctx.strokeStyle=hexRgba(col,0.45);ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(cx-6,cy);ctx.lineTo(cx+6,cy);ctx.moveTo(cx,cy-6);ctx.lineTo(cx,cy+6);ctx.stroke();
+  ctx.fillStyle=hexRgba(col,0.8);ctx.font='300 11px "DM Mono",monospace';ctx.textAlign='center';
+  ctx.fillText(`${roll>=0?'+':''}${roll.toFixed(1)}°`,cx,cy+bubR+24);
 }
 
 // ── Shutter ──
 document.getElementById('shutterBtn').addEventListener('click',()=>{
   if(!stream) return;
   const flash=document.getElementById('flash');
-  flash.style.opacity='1'; setTimeout(()=>{flash.style.opacity='0';},80);
-
+  flash.style.opacity='1';setTimeout(()=>{flash.style.opacity='0';},80);
   const v=document.getElementById('camVideo');
-  const vw=v.videoWidth, vh=v.videoHeight;
-  const off=document.createElement('canvas'); off.width=vw; off.height=vh;
+  const vw=v.videoWidth,vh=v.videoHeight;
+  const off=document.createElement('canvas');off.width=vw;off.height=vh;
   const ox=off.getContext('2d');
   ox.drawImage(v,0,0,vw,vh);
-
   const {cX,cY,cW,cH,tHFov}=calcFrame(vw,vh);
   const clipped=tHFov>=FOV_BASE*0.97;
   if(!clipped){
-    ox.strokeStyle=hexRgba(ACCENT,0.88); ox.lineWidth=Math.max(2,vw*0.0022);
+    ox.strokeStyle=hexRgba(ACCENT,0.88);ox.lineWidth=Math.max(2,vw*0.0022);
     ox.strokeRect(cX,cY,cW,cH);
-    const cs=Math.min(cW,cH)*0.08;
-    ox.lineWidth=Math.max(4,vw*0.004);
+    const cs=Math.min(cW,cH)*0.08;ox.lineWidth=Math.max(4,vw*0.004);
     [[cX,cY,1,1],[cX+cW,cY,-1,1],[cX,cY+cH,1,-1],[cX+cW,cY+cH,-1,-1]].forEach(([x,y,dx,dy])=>{
-      ox.beginPath(); ox.moveTo(x+dx*cs,y); ox.lineTo(x,y); ox.lineTo(x,y+dy*cs); ox.stroke();
+      ox.beginPath();ox.moveTo(x+dx*cs,y);ox.lineTo(x,y);ox.lineTo(x,y+dy*cs);ox.stroke();
     });
   }
-
-  const f=STEPS[S.fIdx], s=SENSORS[S.sensorKey];
-  const fs=Math.round(vh*0.022), pd=Math.round(vh*0.016), lh=Math.round(fs*1.55);
+  const f=STEPS[S.fIdx],s=SENSORS[S.sensorKey];
+  const fs=Math.round(vh*0.022),pd=Math.round(vh*0.016),lh=Math.round(fs*1.55);
   const lines=[s.label,`${f}mm  ${ASPECTS[S.arIdx]}`,`H${fovDeg(s.w,f)}°  V${fovDeg(s.h,f)}°  D${fovDeg(Math.hypot(s.w,s.h),f)}°`];
-  const bkW=vw*0.44, bkH=lh*lines.length+pd*2, bkX=pd, bkY=vh-bkH-pd, rr=5;
+  const bkW=vw*0.44,bkH=lh*lines.length+pd*2,bkX=pd,bkY=vh-bkH-pd,rr=5;
   ox.fillStyle='rgba(0,0,0,0.52)';
   ox.beginPath();
-  ox.moveTo(bkX+rr,bkY); ox.lineTo(bkX+bkW-rr,bkY); ox.arcTo(bkX+bkW,bkY,bkX+bkW,bkY+rr,rr);
-  ox.lineTo(bkX+bkW,bkY+bkH-rr); ox.arcTo(bkX+bkW,bkY+bkH,bkX+bkW-rr,bkY+bkH,rr);
-  ox.lineTo(bkX+rr,bkY+bkH); ox.arcTo(bkX,bkY+bkH,bkX,bkY+bkH-rr,rr);
-  ox.lineTo(bkX,bkY+rr); ox.arcTo(bkX,bkY,bkX+rr,bkY,rr); ox.closePath(); ox.fill();
-  ox.font=`300 ${fs}px "DM Mono",monospace`; ox.fillStyle=hexRgba(ACCENT,0.9);
+  ox.moveTo(bkX+rr,bkY);ox.lineTo(bkX+bkW-rr,bkY);ox.arcTo(bkX+bkW,bkY,bkX+bkW,bkY+rr,rr);
+  ox.lineTo(bkX+bkW,bkY+bkH-rr);ox.arcTo(bkX+bkW,bkY+bkH,bkX+bkW-rr,bkY+bkH,rr);
+  ox.lineTo(bkX+rr,bkY+bkH);ox.arcTo(bkX,bkY+bkH,bkX,bkY+bkH-rr,rr);
+  ox.lineTo(bkX,bkY+rr);ox.arcTo(bkX,bkY,bkX+rr,bkY,rr);ox.closePath();ox.fill();
+  ox.font=`300 ${fs}px "DM Mono",monospace`;ox.fillStyle=hexRgba(ACCENT,0.9);
   lines.forEach((ln,i)=>ox.fillText(ln,bkX+pd,bkY+pd+fs+i*lh));
-
   off.toBlob(blob=>{
-    const url=URL.createObjectURL(blob), a=document.createElement('a'); a.href=url;
+    const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;
     const now=new Date();
     const ts=`${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}${String(now.getSeconds()).padStart(2,'0')}`;
-    a.download=`df_${f}mm_${ts}.jpg`; a.click(); URL.revokeObjectURL(url);
+    a.download=`df_${f}mm_${ts}.jpg`;a.click();URL.revokeObjectURL(url);
   },'image/jpeg',0.92);
 });
 
