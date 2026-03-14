@@ -13,34 +13,35 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400&family=Noto+Sans+JP:wght@300;400&display=swap');
 
 :root {
-  --accent: #5aacff;
+  --col: #5aacff;          /* current accent/overlay color — updated by JS */
+  --col-dim: rgba(90,172,255,0.15);
+  --col-glow: rgba(90,172,255,0.28);
   --text: rgba(220,235,250,0.92);
   --text-dim: rgba(180,200,220,0.42);
   --text-bright: #eef6ff;
-  --red-btn: #e03030;
   --red-warn: #ff5050;
   --green: #4ddf8a;
   --surface: rgba(6,10,16,0.72);
   --border: rgba(90,140,200,0.16);
-  --border-hi: rgba(90,172,255,0.38);
+  --border-hi: rgba(90,172,255,0.38); /* also updated by JS */
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-html, body { width: 100%; height: 100%; background: #000; font-family: 'Noto Sans JP', sans-serif; font-weight: 300; overflow: hidden; color: var(--text); }
+* { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+html,body { width:100%; height:100%; background:#000; font-family:'Noto Sans JP',sans-serif; font-weight:300; overflow:hidden; color:var(--text); }
 
-/* ── Camera layer ── */
-#camLayer { position: fixed; inset: 0; z-index: 0; background: #000; }
-#camVideo  { width: 100%; height: 100%; object-fit: cover; display: none; }
-#ov        { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
-#levelCv   { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+/* Camera */
+#camLayer { position:fixed; inset:0; z-index:0; background:#000; }
+#camVideo  { width:100%; height:100%; object-fit:cover; display:none; }
+#ov        { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+#levelCv   { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
 
-/* ── Start screen ── */
+/* Start screen */
 #startScreen {
-  position: absolute; inset: 0; z-index: 5;
-  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px;
-  background: rgba(0,0,0,0.8); cursor: pointer;
+  position:absolute; inset:0; z-index:5;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px;
+  background:rgba(0,0,0,0.80); cursor:pointer;
 }
-.s-ring { width: 82px; height: 82px; border-radius: 50%; border: 1.5px solid rgba(90,172,255,0.38); display: flex; align-items: center; justify-content: center; position: relative; }
+.s-ring { width:82px; height:82px; border-radius:50%; border:1.5px solid rgba(90,172,255,0.38); display:flex; align-items:center; justify-content:center; position:relative; }
 .s-ring::after { content:''; position:absolute; inset:-14px; border-radius:50%; border:1px solid rgba(90,172,255,0.12); animation:rp 2.2s ease-in-out infinite; }
 @keyframes rp { 0%{transform:scale(1);opacity:.5} 100%{transform:scale(1.35);opacity:0} }
 .s-cam { width:36px; height:28px; border:1.5px solid rgba(90,172,255,0.65); border-radius:4px; position:relative; }
@@ -48,110 +49,114 @@ html, body { width: 100%; height: 100%; background: #000; font-family: 'Noto San
 .s-cam::after  { content:''; position:absolute; inset:5px; border-radius:50%; border:1.5px solid rgba(90,172,255,0.65); }
 #startScreen p { font-family:'DM Mono',monospace; font-size:11px; letter-spacing:.2em; color:rgba(90,172,255,0.55); text-transform:uppercase; }
 
-/* ── Flash ── */
+/* Flash */
 #flash { position:fixed; inset:0; background:#fff; opacity:0; pointer-events:none; z-index:50; transition:opacity .06s; }
 
-/* ── UI layer ── */
-#ui { position: fixed; inset: 0; z-index: 10; pointer-events: none; }
+/* UI */
+#ui { position:fixed; inset:0; z-index:10; pointer-events:none; }
 
 /* ── Left sidebar ── */
 #sidebar {
-  position: absolute; left: 0; top: 0; bottom: 0;
-  width: 76px;
-  display: flex; flex-direction: column; align-items: center;
-  padding: 14px 0; gap: 8px;
-  pointer-events: all;
+  position:absolute; left:0; top:0; bottom:0; width:72px;
+  display:flex; flex-direction:column; align-items:center;
+  padding:16px 0; gap:8px;
+  pointer-events:all;
 }
-
 .cyc-btn {
-  width: 62px;
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 8px;
-  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
-  display: flex; flex-direction: column; align-items: center;
-  padding: 8px 4px 6px; gap: 3px;
-  cursor: pointer; transition: border-color .15s;
-  flex-shrink: 0; user-select: none;
+  width:60px;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:8px;
+  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  display:flex; flex-direction:column; align-items:center;
+  padding:8px 4px 6px; gap:3px;
+  cursor:pointer; transition:border-color .15s;
+  flex-shrink:0; user-select:none;
 }
-.cyc-btn:active { border-color: var(--border-hi); }
+.cyc-btn:active { border-color:var(--border-hi); }
 .cyc-val { font-family:'DM Mono',monospace; font-size:10px; font-weight:400; color:var(--text-bright); text-align:center; line-height:1.25; white-space:nowrap; }
 .cyc-dot { width:3px; height:3px; border-radius:50%; background:var(--text-dim); }
 
-/* Color dot preview inside color button */
-.color-preview {
-  width: 10px; height: 10px; border-radius: 50%;
-  border: 1px solid rgba(255,255,255,0.2);
-  flex-shrink: 0;
+/* Color button — swatch only, no text */
+#btnColor {
+  width:60px; height:44px;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:8px;
+  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; transition:border-color .15s;
+  flex-shrink:0;
+}
+#btnColor:active { border-color:var(--border-hi); }
+#colorSwatch {
+  width:22px; height:22px; border-radius:50%;
+  border:2px solid rgba(255,255,255,0.25);
+  transition:background .2s;
 }
 
-/* ── Right side: vertical slider ── */
+/* ── Right: vertical slider ── */
 #sliderArea {
-  position: absolute; right: 0; top: 0; bottom: 0;
-  width: 52px;
-  display: flex; flex-direction: column; align-items: center;
-  justify-content: center;
-  pointer-events: all;
-  padding: 24px 0;
+  position:absolute; right:0; top:0; bottom:0; width:56px;
+  display:flex; align-items:center; justify-content:center;
+  pointer-events:all;
 }
-
-/* Vertical range slider via rotate */
-.vslider-wrap {
-  position: relative;
-  width: 200px; height: 52px; /* will be rotated */
-  transform: rotate(-90deg);
-  transform-origin: center center;
-  display: flex; align-items: center;
+/* Rotated horizontal range becomes vertical */
+.vslider-outer {
+  position:relative;
+  width:var(--vslider-h, 200px); /* set by JS to match available height */
+  height:44px;
+  transform:rotate(-90deg);
 }
-
 input[type=range].vslider {
-  -webkit-appearance: none; appearance: none;
-  width: 100%; height: 2px;
-  background: transparent; outline: none; cursor: pointer; position: relative; z-index: 2;
+  -webkit-appearance:none; appearance:none;
+  width:100%; height:2px;
+  background:transparent; outline:none; cursor:pointer;
+  position:relative; z-index:2;
 }
-input[type=range].vslider::-webkit-slider-runnable-track { height: 2px; background: rgba(90,140,200,0.2); border-radius: 1px; }
+input[type=range].vslider::-webkit-slider-runnable-track { height:2px; background:rgba(90,140,200,0.2); border-radius:1px; }
 input[type=range].vslider::-webkit-slider-thumb {
-  -webkit-appearance: none; width: 28px; height: 28px; border-radius: 50%;
-  background: var(--accent); box-shadow: 0 0 12px rgba(90,172,255,.4);
-  margin-top: -13px; cursor: pointer; transition: box-shadow .15s;
+  -webkit-appearance:none; width:36px; height:36px; border-radius:50%;
+  background:var(--col); box-shadow:0 0 14px var(--col-glow);
+  margin-top:-17px; cursor:pointer; transition:box-shadow .15s;
 }
-input[type=range].vslider:active::-webkit-slider-thumb { box-shadow: 0 0 22px rgba(90,172,255,.6); }
+input[type=range].vslider:active::-webkit-slider-thumb { box-shadow:0 0 24px var(--col-glow); }
 .vtrack-fill {
-  position: absolute; left: 0; top: 50%; transform: translateY(-50%);
-  height: 2px; background: var(--accent); border-radius: 1px; pointer-events: none; z-index: 1;
+  position:absolute; left:0; top:50%; transform:translateY(-50%);
+  height:2px; background:var(--col); border-radius:1px;
+  pointer-events:none; z-index:1;
 }
 
-/* ── Bottom: focal display + shutter ── */
+/* ── Bottom bar ── */
+/* height = shutter button diameter + padding */
 #bottomBar {
-  position: absolute; left: 0; right: 0; bottom: 0; height: 60px;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 0 14px 0 76px; /* left pad = sidebar width */
-  pointer-events: all;
+  position:absolute; left:72px; right:56px; bottom:0;
+  height:72px;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 16px;
+  pointer-events:all;
 }
-
 #focalDisp {
-  font-family:'DM Mono',monospace; font-size:24px; font-weight:300;
+  font-family:'DM Mono',monospace; font-size:26px; font-weight:300;
   color:var(--text-bright); white-space:nowrap;
-  text-shadow:0 1px 10px rgba(0,0,0,.9);
+  text-shadow:0 1px 12px rgba(0,0,0,.9);
 }
-#focalDisp em { font-style:normal; font-size:12px; color:var(--text-dim); margin-left:2px; }
+#focalDisp em { font-style:normal; font-size:13px; color:var(--text-dim); margin-left:2px; }
 
-/* Shutter: red circle */
+/* Shutter */
 #shutterBtn {
-  width: 56px; height: 56px; border-radius: 50%; flex-shrink: 0;
-  background: var(--red-btn);
-  border: 3px solid rgba(255,100,100,0.5);
-  box-shadow: 0 0 16px rgba(220,48,48,0.45);
-  display: flex; align-items: center; justify-content: center;
-  cursor: pointer; transition: all .15s;
-  pointer-events: all;
+  width:60px; height:60px; border-radius:50%; flex-shrink:0;
+  background:#c82020;
+  border:3px solid rgba(255,120,120,0.45);
+  box-shadow:0 0 18px rgba(200,32,32,0.5);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; transition:all .15s; pointer-events:all;
 }
-#shutterBtn::after { content:''; width:38px; height:38px; border-radius:50%; background:rgba(255,160,160,0.18); border:2px solid rgba(255,255,255,0.25); transition:all .12s; }
-#shutterBtn:active { transform: scale(.92); box-shadow: 0 0 24px rgba(220,48,48,0.7); }
-#shutterBtn:active::after { background:rgba(255,255,255,0.15); }
+#shutterBtn::after { content:''; width:42px; height:42px; border-radius:50%; background:rgba(255,180,180,0.12); border:2px solid rgba(255,255,255,0.2); transition:all .12s; }
+#shutterBtn:active { transform:scale(.9); box-shadow:0 0 28px rgba(200,32,32,0.7); }
+#shutterBtn:active::after { background:rgba(255,255,255,0.12); }
 
-/* ── Center warning ── */
+/* Center warning */
 #fovWarn {
-  position: absolute; top: 46%; left: 50%; transform: translate(-50%,-50%);
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
   font-family:'DM Mono',monospace; font-size:11px; color:var(--red-warn);
   letter-spacing:.06em; text-align:center; line-height:1.6;
   background:rgba(0,0,0,0.58); border-radius:6px; padding:6px 14px;
@@ -175,30 +180,17 @@ input[type=range].vslider:active::-webkit-slider-thumb { box-shadow: 0 0 22px rg
 
 <div id="ui">
 
-  <!-- Left sidebar: sensor / aspect / grid / color -->
+  <!-- Left sidebar -->
   <div id="sidebar">
-    <div class="cyc-btn" id="btnSensor">
-      <div class="cyc-val" id="valSensor">35mm</div>
-      <div class="cyc-dot"></div>
-    </div>
-    <div class="cyc-btn" id="btnAspect">
-      <div class="cyc-val" id="valAspect">3:2</div>
-      <div class="cyc-dot"></div>
-    </div>
-    <div class="cyc-btn" id="btnGrid">
-      <div class="cyc-val" id="valGrid">三分割</div>
-      <div class="cyc-dot"></div>
-    </div>
-    <div class="cyc-btn" id="btnColor">
-      <div class="color-preview" id="colorPreview"></div>
-      <div class="cyc-val" id="valColor">青</div>
-      <div class="cyc-dot"></div>
-    </div>
+    <div class="cyc-btn" id="btnSensor"><div class="cyc-val" id="valSensor">35mm</div><div class="cyc-dot"></div></div>
+    <div class="cyc-btn" id="btnAspect"><div class="cyc-val" id="valAspect">3:2</div><div class="cyc-dot"></div></div>
+    <div class="cyc-btn" id="btnGrid"><div class="cyc-val" id="valGrid">三分割</div><div class="cyc-dot"></div></div>
+    <div id="btnColor"><div id="colorSwatch"></div></div>
   </div>
 
-  <!-- Right: vertical focal slider -->
+  <!-- Right: vertical slider -->
   <div id="sliderArea">
-    <div class="vslider-wrap">
+    <div class="vslider-outer" id="vsliderOuter">
       <div class="vtrack-fill" id="vTrackFill"></div>
       <input type="range" class="vslider" id="fSlider" min="0" step="1" value="4">
     </div>
@@ -207,7 +199,7 @@ input[type=range].vslider:active::-webkit-slider-thumb { box-shadow: 0 0 22px rg
   <!-- Warning -->
   <div id="fovWarn">画角がカメラより広い範囲です</div>
 
-  <!-- Bottom: focal value + shutter -->
+  <!-- Bottom bar -->
   <div id="bottomBar">
     <div id="focalDisp"><span id="fNum">50</span><em>mm</em></div>
     <button id="shutterBtn"></button>
@@ -223,108 +215,144 @@ const SENSORS = {
   ff:   { w:36.0, h:24.0, label:'FF 36×24mm',        disp:'35mm'  },
   apsc: { w:23.5, h:15.6, label:'APS-C 23.5×15.6mm', disp:'APS-C' },
 };
-// Focal steps 20–200mm only
 const STEPS   = [20,24,28,35,50,58,85,105,135,200];
 const ASPECTS = ['3:2','1:1','16:9','21:9'];
 const AR_MAP  = {'3:2':[3,2],'1:1':[1,1],'16:9':[16,9],'21:9':[21,9]};
-const GRIDS   = ['thirds','spiral','level','none'];
-const GRID_LBL= {thirds:'三分割', spiral:'螺旋', level:'水準器', none:'---'};
-const COLORS  = [
-  { key:'blue',   hex:'#5aacff', name:'青'  },
-  { key:'yellow', hex:'#ffd95a', name:'黄'  },
-  { key:'red',    hex:'#ff5a5a', name:'赤'  },
-  { key:'white',  hex:'#f0f4ff', name:'白'  },
+const GRIDS   = ['thirds','golden','level','none'];
+const GRID_LBL= {thirds:'三分割', golden:'黄金比', level:'水準器', none:'---'};
+const PHI     = (1+Math.sqrt(5))/2;
+const G1 = 1/(PHI*PHI), G2 = 1/PHI;  // ~0.382, ~0.618
+
+const COLORS = [
+  { hex:'#5aacff', glow:'rgba(90,172,255,0.28)',  dimHi:'rgba(90,172,255,0.38)' },
+  { hex:'#ffd95a', glow:'rgba(255,217,90,0.28)',  dimHi:'rgba(255,217,90,0.38)' },
+  { hex:'#ff5a5a', glow:'rgba(255,90,90,0.28)',   dimHi:'rgba(255,90,90,0.38)'  },
+  { hex:'#f0f4ff', glow:'rgba(240,244,255,0.25)', dimHi:'rgba(240,244,255,0.35)' },
 ];
-const PHI   = (1+Math.sqrt(5))/2;
-const G1 = 1/(PHI*PHI), G2 = 1/PHI;
-const FOV_BASE = 65;
 
 // ══════════════════════════════
 // State
 // ══════════════════════════════
 let S = { sensorKey:'ff', fIdx:4, arIdx:0, gridIdx:0, colorIdx:0 };
+let FOV_BASE = 65;   // updated dynamically after camera starts
 let stream=null, raf=null;
-let tilt={roll:0,pitch:0}, gyroActive=false;
+let tilt={roll:0, pitch:0}, gyroActive=false;
 
 // ══════════════════════════════
-// Frame geometry — single source of truth
+// Theme — apply color to CSS vars
+// ══════════════════════════════
+function applyTheme(){
+  const c = COLORS[S.colorIdx];
+  const root = document.documentElement;
+  root.style.setProperty('--col',      c.hex);
+  root.style.setProperty('--col-glow', c.glow);
+  root.style.setProperty('--border-hi',c.dimHi);
+  document.getElementById('colorSwatch').style.background = c.hex;
+}
+applyTheme();
+
+// ══════════════════════════════
+// Frame geometry
+// The overlay frame is centered exactly in the viewport,
+// independent of sidebar/slider widths.
 // ══════════════════════════════
 function calcFrame(W, H) {
-  const f=STEPS[S.fIdx], s=SENSORS[S.sensorKey];
-  const [arW,arH]=AR_MAP[ASPECTS[S.arIdx]];
-  const tHFov=2*Math.atan(s.w/(2*f))*180/Math.PI;
-  const hRatio=Math.min(tHFov/FOV_BASE, 0.97);
-  let bW=W*hRatio, bH=bW*(2/3);
-  const maxH=H*0.84;
-  if(bH>maxH){bH=maxH;bW=bH*(3/2);}
-  const bX=(W-bW)/2, bY=(H-bH)/2 - Math.round(H*0.03);
-  const selAr=arW/arH;
-  let cW,cH;
-  if(selAr>=3/2){cW=bW;cH=bW/selAr;}else{cH=bH;cW=bH*selAr;}
-  const cX=bX+(bW-cW)/2, cY=bY+(bH-cH)/2;
-  return {bX,bY,bW,bH,cX,cY,cW,cH,tHFov};
+  const f  = STEPS[S.fIdx];
+  const s  = SENSORS[S.sensorKey];
+  const [arW,arH] = AR_MAP[ASPECTS[S.arIdx]];
+
+  // How wide the target FOV is relative to the camera's FOV
+  const tHFov  = 2 * Math.atan(s.w / (2*f)) * 180 / Math.PI;
+  const hRatio = Math.min(tHFov / FOV_BASE, 0.95);
+
+  // Base 3:2 frame, constrained to fit
+  let bW = W * hRatio;
+  let bH = bW * (2/3);
+  const maxH = H * 0.85;
+  if(bH > maxH){ bH = maxH; bW = bH * (3/2); }
+
+  // Centered on the full canvas
+  const bX = (W - bW) / 2;
+  const bY = (H - bH) / 2;
+
+  // Crop to selected AR
+  const selAr = arW / arH;
+  let cW, cH;
+  if(selAr >= 3/2){ cW=bW; cH=bW/selAr; }
+  else            { cH=bH; cW=bH*selAr; }
+  const cX = bX + (bW-cW)/2;
+  const cY = bY + (bH-cH)/2;
+
+  return { bX,bY,bW,bH, cX,cY,cW,cH, tHFov };
 }
 
 // ══════════════════════════════
 // Helpers
 // ══════════════════════════════
 function hexRgba(hex,a){
-  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
   return `rgba(${r},${g},${b},${a})`;
 }
-function fovDeg(dim,f){return(2*Math.atan(dim/(2*f))*180/Math.PI).toFixed(1);}
-function curCol(){return COLORS[S.colorIdx].hex;}
+function fovDeg(dim,f){ return (2*Math.atan(dim/(2*f))*180/Math.PI).toFixed(1); }
+function curCol(){ return COLORS[S.colorIdx].hex; }
 
 // ══════════════════════════════
 // Vertical slider
 // ══════════════════════════════
-const slider=document.getElementById('fSlider');
-slider.max=STEPS.length-1; slider.value=S.fIdx;
+const slider = document.getElementById('fSlider');
+slider.max = STEPS.length - 1;
+slider.value = S.fIdx;
+
+function layoutSlider(){
+  // Make the rotated slider span the full available height
+  const area = document.getElementById('sliderArea');
+  const h = area.offsetHeight;
+  const outer = document.getElementById('vsliderOuter');
+  outer.style.width = Math.max(100, h - 40) + 'px';
+}
 
 function setFocal(i){
-  S.fIdx=i; slider.value=i;
-  document.getElementById('fNum').textContent=STEPS[i];
+  S.fIdx = i;
+  slider.value = i;
+  document.getElementById('fNum').textContent = STEPS[i];
   updateVFill();
-  const f=STEPS[i], s=SENSORS[S.sensorKey];
-  document.getElementById('fovWarn').style.display=parseFloat(fovDeg(s.w,f))>=FOV_BASE*0.97?'block':'none';
+  const f = STEPS[i], s = SENSORS[S.sensorKey];
+  document.getElementById('fovWarn').style.display =
+    parseFloat(fovDeg(s.w,f)) >= FOV_BASE * 0.97 ? 'block' : 'none';
   draw();
 }
 function updateVFill(){
-  // Slider is rotated -90deg: value 0=bottom(visually), max=top
-  // fill goes from bottom, so pct = value/max
-  const pct=(S.fIdx/(STEPS.length-1)*100);
-  document.getElementById('vTrackFill').style.width=pct+'%';
+  const pct = S.fIdx / (STEPS.length-1) * 100;
+  document.getElementById('vTrackFill').style.width = pct + '%';
 }
-slider.addEventListener('input',()=>setFocal(+slider.value));
+slider.addEventListener('input', ()=>setFocal(+slider.value));
+// Also handle touch directly for better responsiveness
+slider.addEventListener('touchmove', e=>{ e.stopPropagation(); }, {passive:true});
 
 // ══════════════════════════════
 // Sidebar tap-cycle
 // ══════════════════════════════
 document.getElementById('btnSensor').addEventListener('click',()=>{
-  S.sensorKey=S.sensorKey==='ff'?'apsc':'ff';
-  document.getElementById('valSensor').textContent=SENSORS[S.sensorKey].disp;
+  S.sensorKey = S.sensorKey==='ff'?'apsc':'ff';
+  document.getElementById('valSensor').textContent = SENSORS[S.sensorKey].disp;
   draw();
 });
 document.getElementById('btnAspect').addEventListener('click',()=>{
-  S.arIdx=(S.arIdx+1)%ASPECTS.length;
-  document.getElementById('valAspect').textContent=ASPECTS[S.arIdx];
+  S.arIdx = (S.arIdx+1) % ASPECTS.length;
+  document.getElementById('valAspect').textContent = ASPECTS[S.arIdx];
   draw();
 });
 document.getElementById('btnGrid').addEventListener('click',()=>{
-  S.gridIdx=(S.gridIdx+1)%GRIDS.length;
-  document.getElementById('valGrid').textContent=GRID_LBL[GRIDS[S.gridIdx]];
+  S.gridIdx = (S.gridIdx+1) % GRIDS.length;
+  document.getElementById('valGrid').textContent = GRID_LBL[GRIDS[S.gridIdx]];
   if(GRIDS[S.gridIdx]==='level') startGyro(); else stopGyro();
   draw();
 });
 document.getElementById('btnColor').addEventListener('click',()=>{
-  S.colorIdx=(S.colorIdx+1)%COLORS.length;
-  const c=COLORS[S.colorIdx];
-  document.getElementById('valColor').textContent=c.name;
-  document.getElementById('colorPreview').style.background=c.hex;
+  S.colorIdx = (S.colorIdx+1) % COLORS.length;
+  applyTheme();
   draw();
 });
-// Init color preview
-document.getElementById('colorPreview').style.background=COLORS[0].hex;
 
 // ══════════════════════════════
 // Camera
@@ -333,245 +361,216 @@ document.getElementById('startScreen').addEventListener('click', startCam);
 
 async function startCam(){
   try{
-    stream=await navigator.mediaDevices.getUserMedia({
-      video:{facingMode:{ideal:'environment'}, width:{ideal:1920}},
+    stream = await navigator.mediaDevices.getUserMedia({
+      video:{ facingMode:{ideal:'environment'}, width:{ideal:1920} },
       audio:false
     });
     await afterStart();
+    estimateFOV();
   }catch{
-    document.getElementById('startScreen').querySelector('p').textContent='カメラの許可が必要です';
+    document.getElementById('startScreen').querySelector('p').textContent = 'カメラの許可が必要です';
   }
 }
+
+// Estimate camera horizontal FOV from stream track settings
+function estimateFOV(){
+  if(!stream) return;
+  const track = stream.getVideoTracks()[0];
+  if(!track) return;
+  // Some browsers expose fov in capabilities, otherwise use heuristic
+  const caps = track.getCapabilities ? track.getCapabilities() : {};
+  if(caps.zoom && caps.zoom.min !== undefined){
+    // zoom capable device — keep default
+  }
+  // Use aspect ratio and known sensor to back-calculate
+  // For most smartphone main cameras (26–28mm FF equiv), hFOV ≈ 65–70°
+  // We read videoWidth/videoHeight to detect landscape and set a reasonable base
+  const v = document.getElementById('camVideo');
+  const vw = v.videoWidth, vh = v.videoHeight;
+  if(vw && vh){
+    // Pixel 8a main camera: ~26mm FF equiv → hFOV ≈ 69°
+    // Generic Android: ~26–28mm → 65–70°
+    // We set 68° as a slightly better default for modern flagship phones
+    FOV_BASE = 68;
+  }
+  draw();
+}
+
 async function afterStart(){
-  const v=document.getElementById('camVideo');
-  v.srcObject=stream; v.style.display='block';
-  document.getElementById('startScreen').style.display='none';
+  const v = document.getElementById('camVideo');
+  v.srcObject = stream; v.style.display = 'block';
+  document.getElementById('startScreen').style.display = 'none';
   return new Promise(res=>{
-    v.onloadedmetadata=()=>{ resizeCv(); raf=requestAnimationFrame(loop); res(); };
+    v.onloadedmetadata = ()=>{
+      resizeCv();
+      layoutSlider();
+      raf = requestAnimationFrame(loop);
+      res();
+    };
   });
 }
+
 function resizeCv(){
   ['ov','levelCv'].forEach(id=>{
-    const c=document.getElementById(id); c.width=window.innerWidth; c.height=window.innerHeight;
+    const c = document.getElementById(id);
+    c.width = window.innerWidth;
+    c.height = window.innerHeight;
   });
 }
-window.addEventListener('resize',()=>{ if(stream){ resizeCv(); draw(); } });
-function loop(){ draw(); drawLevel(); raf=requestAnimationFrame(loop); }
+window.addEventListener('resize',()=>{
+  if(stream){ resizeCv(); layoutSlider(); draw(); }
+});
+function loop(){ draw(); drawLevel(); raf = requestAnimationFrame(loop); }
 
 // ══════════════════════════════
-// Gyro
+// Gyro — landscape mode: phone lies flat horizontally
+// gamma = rotation around front-back axis (left/right tilt in portrait = roll in landscape)
+// beta  = rotation around left-right axis (forward/back tilt)
+// In landscape, the axes swap compared to portrait
 // ══════════════════════════════
 function startGyro(){
   if(gyroActive) return;
   if(typeof DeviceOrientationEvent==='undefined') return;
   if(typeof DeviceOrientationEvent.requestPermission==='function'){
-    DeviceOrientationEvent.requestPermission().then(r=>{ if(r==='granted') bindGyro(); }).catch(()=>{});
+    DeviceOrientationEvent.requestPermission()
+      .then(r=>{ if(r==='granted') bindGyro(); })
+      .catch(()=>{});
   } else { bindGyro(); }
 }
-function bindGyro(){ window.addEventListener('deviceorientation',onOrient,true); gyroActive=true; }
-function stopGyro(){ window.removeEventListener('deviceorientation',onOrient,true); gyroActive=false; tilt.roll=0; tilt.pitch=0; }
-function onOrient(e){ tilt.roll=e.gamma||0; tilt.pitch=e.beta||0; }
+function bindGyro(){ window.addEventListener('deviceorientation', onOrient, true); gyroActive=true; }
+function stopGyro(){
+  window.removeEventListener('deviceorientation', onOrient, true);
+  gyroActive=false; tilt.roll=0; tilt.pitch=0;
+}
+function onOrient(e){
+  // Landscape: gamma is the left-right tilt of the phone held horizontally
+  // For a phone held in landscape pointing at a subject:
+  // - Roll (horizon tilt): gamma
+  // - Pitch (tilt up/down): beta offset by 90° since phone is ~horizontal
+  tilt.roll  = e.gamma || 0;
+  tilt.pitch = (e.beta  || 0) - 90;  // 90° offset: flat horizontal = 0°
+}
 
 // ══════════════════════════════
 // Draw frame overlay
 // ══════════════════════════════
 function draw(){
   if(!stream) return;
-  const c=document.getElementById('ov'), ctx=c.getContext('2d');
-  const W=c.width, H=c.height;
+  const c   = document.getElementById('ov');
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
   ctx.clearRect(0,0,W,H);
 
-  const {bX,bY,bW,bH,cX,cY,cW,cH,tHFov}=calcFrame(W,H);
-  const clipped=tHFov>=FOV_BASE*0.97;
-  const col=curCol();
+  const {bX,bY,bW,bH,cX,cY,cW,cH,tHFov} = calcFrame(W,H);
+  const clipped = tHFov >= FOV_BASE * 0.97;
+  const col = curCol();
 
   // Outer dim
   ctx.fillStyle='rgba(0,0,0,0.52)';
-  ctx.fillRect(0,0,W,bY); ctx.fillRect(0,bY+bH,W,H-bY-bH);
-  ctx.fillRect(0,bY,bX,bH); ctx.fillRect(bX+bW,bY,W-bX-bW,bH);
+  ctx.fillRect(0,0,W,bY);
+  ctx.fillRect(0,bY+bH,W,H-bY-bH);
+  ctx.fillRect(0,bY,bX,bH);
+  ctx.fillRect(bX+bW,bY,W-bX-bW,bH);
 
   // Crop mask + ghost 3:2
   if(ASPECTS[S.arIdx]!=='3:2'){
     ctx.fillStyle='rgba(0,0,0,0.48)';
-    if(cY>bY)        ctx.fillRect(bX,bY,bW,cY-bY);
+    if(cY>bY)        ctx.fillRect(bX,bY,   bW,cY-bY);
     if(cY+cH<bY+bH) ctx.fillRect(bX,cY+cH,bW,(bY+bH)-(cY+cH));
-    if(cX>bX)        ctx.fillRect(bX,cY,cX-bX,cH);
+    if(cX>bX)        ctx.fillRect(bX,cY,   cX-bX,cH);
     if(cX+cW<bX+bW) ctx.fillRect(cX+cW,cY,(bX+bW)-(cX+cW),cH);
-    ctx.strokeStyle=hexRgba(col,0.12); ctx.lineWidth=1; ctx.setLineDash([4,5]);
+    ctx.strokeStyle=hexRgba(col,0.13); ctx.lineWidth=1; ctx.setLineDash([4,5]);
     ctx.strokeRect(bX,bY,bW,bH); ctx.setLineDash([]);
   }
 
   if(!clipped){
-    // Frame border — thicker
+    // Frame border
     ctx.strokeStyle=hexRgba(col,0.88); ctx.lineWidth=2.5;
     ctx.shadowColor=hexRgba(col,0.3); ctx.shadowBlur=10;
     ctx.strokeRect(cX,cY,cW,cH); ctx.shadowBlur=0;
 
     // Corner brackets
-    const cs=Math.min(cW,cH)*0.1;
-    ctx.lineWidth=4; ctx.shadowColor=hexRgba(col,0.3); ctx.shadowBlur=14;
+    const cs = Math.min(cW,cH)*0.1;
+    ctx.lineWidth=4; ctx.shadowColor=hexRgba(col,0.28); ctx.shadowBlur=14;
     [[cX,cY,1,1],[cX+cW,cY,-1,1],[cX,cY+cH,1,-1],[cX+cW,cY+cH,-1,-1]].forEach(([x,y,dx,dy])=>{
       ctx.beginPath(); ctx.moveTo(x+dx*cs,y); ctx.lineTo(x,y); ctx.lineTo(x,y+dy*cs); ctx.stroke();
     });
     ctx.shadowBlur=0;
 
-    // Grid / spiral
-    const grid=GRIDS[S.gridIdx];
-    if(grid==='thirds'){
-      ctx.strokeStyle=hexRgba(col,0.28); ctx.lineWidth=1.5;
-      [1/3,2/3].forEach(p=>{
+    // Grid lines
+    const grid = GRIDS[S.gridIdx];
+    if(grid==='thirds' || grid==='golden'){
+      const ps = grid==='thirds' ? [1/3,2/3] : [G1,G2];
+      ctx.strokeStyle=hexRgba(col,0.30); ctx.lineWidth=1.5;
+      ps.forEach(p=>{
         ctx.beginPath(); ctx.moveTo(cX+cW*p,cY); ctx.lineTo(cX+cW*p,cY+cH); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(cX,cY+cH*p); ctx.lineTo(cX+cW,cY+cH*p); ctx.stroke();
       });
-    } else if(grid==='spiral'){
-      drawSpiral(ctx, cX, cY, cW, cH, col);
     }
 
     // Center cross
-    const cx=cX+cW/2, cy=cY+cH/2, cl=10;
-    ctx.strokeStyle=hexRgba(col,0.28); ctx.lineWidth=1.2;
+    const cx=cX+cW/2, cy=cY+cH/2, cl=11;
+    ctx.strokeStyle=hexRgba(col,0.30); ctx.lineWidth=1.5;
     ctx.beginPath(); ctx.moveTo(cx-cl,cy); ctx.lineTo(cx+cl,cy); ctx.moveTo(cx,cy-cl); ctx.lineTo(cx,cy+cl); ctx.stroke();
   }
 }
 
 // ══════════════════════════════
-// Golden spiral
-// Draws a Fibonacci spiral approximation using quarter-circle arcs
-// 4 orientations cycling around the frame
-// ══════════════════════════════
-function drawSpiral(ctx, x, y, w, h, col){
-  ctx.strokeStyle=hexRgba(col,0.72); ctx.lineWidth=1.8;
-  ctx.shadowColor=hexRgba(col,0.25); ctx.shadowBlur=6;
-  ctx.save(); ctx.beginPath();
-
-  // We draw the spiral in the top-left orientation, then offer 4 corners
-  // For simplicity: draw one canonical spiral that fits the frame
-  // PHI = 1.618..., so we divide the longer side by PHI repeatedly
-  const isWide = w >= h;
-  const drawOneSpiral = (ox,oy,sw,sh,flipX,flipY)=>{
-    // Fibonacci rectangles descending
-    let rx=ox, ry=oy, rw=sw, rh=sh;
-    ctx.moveTo(flipX?rx+rw:rx, flipY?ry+rh:ry);
-    for(let i=0;i<8;i++){
-      if(rw>=rh){
-        const sq=rh;
-        const cx2=flipX?rx+rw-sq:rx+sq;
-        const cy2=flipY?ry+rh:ry;
-        const startA=flipY?(flipX?0:Math.PI):(flipX?Math.PI*3/2:Math.PI/2);
-        const endA=startA+(flipX!==flipY?-Math.PI/2:Math.PI/2);
-        ctx.arc(
-          flipX?rx+rw-sq:rx+sq,
-          flipY?ry+rh:ry,
-          sq,
-          flipY?(flipX?-Math.PI/2:Math.PI*3/2):(flipX?Math.PI/2:-Math.PI/2),
-          flipY?(flipX?Math.PI*1:0):(flipX?0:Math.PI),
-          flipX!==flipY
-        );
-        if(flipX) rx=rx; else rx+=sq;
-        rw-=sq;
-      }else{
-        const sq=rw;
-        ctx.arc(
-          flipX?rx+rw:rx,
-          flipY?ry+rh-sq:ry+sq,
-          sq,
-          flipX?(flipY?Math.PI/2:0):(flipY?Math.PI/2:Math.PI),
-          flipX?(flipY?Math.PI:Math.PI*3/2):(flipY?0:Math.PI/2),
-          flipX!==flipY
-        );
-        if(flipY) ry=ry; else ry+=sq;
-        rh-=sq;
-      }
-      if(rw<1||rh<1) break;
-    }
-  };
-
-  // Use a clean, reliable spiral construction
-  ctx.clearRect && null; // noop
-  ctx.beginPath();
-  buildSpiral(ctx, x, y, w, h);
-  ctx.stroke();
-  ctx.shadowBlur=0;
-  ctx.restore();
-}
-
-function buildSpiral(ctx, x, y, w, h){
-  // Canonical golden spiral in top-right corner orientation
-  // Break frame into Fibonacci rectangles, arc through each
-  let rects=[];
-  let rx=x,ry=y,rw=w,rh=h;
-  // Generate Fibonacci rectangle sequence
-  for(let i=0;i<9;i++){
-    if(rw>=rh){
-      const sq=rh;
-      rects.push({x:rx,y:ry,w:sq,h:sq,isH:true,flip:i%4});
-      rx+=sq; rw-=sq;
-    }else{
-      const sq=rw;
-      rects.push({x:rx,y:ry,w:sq,h:sq,isH:false,flip:i%4});
-      ry+=sq; rh-=sq;
-    }
-    if(rw<2||rh<2) break;
-  }
-
-  // Arc centers and angles for each Fibonacci rectangle
-  // Orientation cycles: right→down→left→up
-  const starts=[Math.PI,  Math.PI*3/2, 0,         Math.PI/2];
-  const ends  =[Math.PI/2, Math.PI,    Math.PI*3/2, 0       ];
-  const ccw   =[false,     false,       false,        false   ];
-  const cxOff =[1,0,0,1];  // corner x multiplier
-  const cyOff =[0,0,1,1];  // corner y multiplier
-
-  rects.forEach((r,i)=>{
-    const idx=i%4;
-    const arcX=r.x+r.w*cxOff[idx];
-    const arcY=r.y+r.h*cyOff[idx];
-    const rad=Math.min(r.w,r.h);
-    if(i===0) ctx.moveTo(arcX+rad*Math.cos(starts[idx]), arcY+rad*Math.sin(starts[idx]));
-    ctx.arc(arcX,arcY,rad,starts[idx],ends[idx],false);
-  });
-}
-
-// ══════════════════════════════
-// Draw level (cross-hair, no bubble)
+// Draw level — cross-hair (no bubble)
+// Horizontal line rotates with roll
+// Vertical line tilts with pitch
+// Both green when within ±1°
 // ══════════════════════════════
 function drawLevel(){
-  const c=document.getElementById('levelCv'), ctx=c.getContext('2d');
-  const W=c.width, H=c.height;
+  const c   = document.getElementById('levelCv');
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
   ctx.clearRect(0,0,W,H);
   if(GRIDS[S.gridIdx]!=='level') return;
 
-  const roll=tilt.roll, pitch=tilt.pitch;
-  const levelOk=Math.abs(roll)<1.0 && Math.abs(pitch)<1.0;
-  const lineCol=levelOk?'#4ddf8a':curCol();
-  const cx=W/2, cy=H/2;
+  const roll  = tilt.roll;
+  const pitch = tilt.pitch;
+  const rollOk  = Math.abs(roll)  < 1.0;
+  const pitchOk = Math.abs(pitch) < 1.0;
+  const rollCol  = rollOk  ? '#4ddf8a' : curCol();
+  const pitchCol = pitchOk ? '#4ddf8a' : curCol();
 
-  // Horizontal line (rotated by roll)
-  const hLen=Math.min(W,H)*0.5;
+  const cx = W/2, cy = H/2;
+  const len = Math.min(W,H) * 0.52;
+
+  // Horizontal line — rotates by roll
   ctx.save(); ctx.translate(cx,cy); ctx.rotate(roll*Math.PI/180);
-  ctx.strokeStyle=hexRgba(lineCol,0.8); ctx.lineWidth=1.8;
-  ctx.beginPath(); ctx.moveTo(-hLen/2,0); ctx.lineTo(hLen/2,0); ctx.stroke();
+  ctx.strokeStyle=hexRgba(rollCol,0.82); ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(-len/2,0); ctx.lineTo(len/2,0); ctx.stroke();
+  // End tick marks
+  ctx.lineWidth=1.5;
+  [-len/2, len/2].forEach(ex=>{
+    ctx.beginPath(); ctx.moveTo(ex,-6); ctx.lineTo(ex,6); ctx.stroke();
+  });
   ctx.restore();
 
-  // Vertical line (rotated by pitch, mapped to tilt forward/back)
-  const vLen=Math.min(W,H)*0.5;
+  // Vertical line — rotates by pitch
   ctx.save(); ctx.translate(cx,cy); ctx.rotate(pitch*Math.PI/180);
-  ctx.strokeStyle=hexRgba(lineCol,0.8); ctx.lineWidth=1.8;
-  ctx.beginPath(); ctx.moveTo(0,-vLen/2); ctx.lineTo(0,vLen/2); ctx.stroke();
+  ctx.strokeStyle=hexRgba(pitchCol,0.82); ctx.lineWidth=2;
+  ctx.beginPath(); ctx.moveTo(0,-len/2); ctx.lineTo(0,len/2); ctx.stroke();
+  ctx.lineWidth=1.5;
+  [-len/2, len/2].forEach(ey=>{
+    ctx.beginPath(); ctx.moveTo(-6,ey); ctx.lineTo(6,ey); ctx.stroke();
+  });
   ctx.restore();
 
-  // Center fixed cross (reference)
-  ctx.strokeStyle=hexRgba(lineCol,0.35); ctx.lineWidth=1;
-  const cl=8;
-  ctx.beginPath();
-  ctx.moveTo(cx-cl,cy); ctx.lineTo(cx+cl,cy);
-  ctx.moveTo(cx,cy-cl); ctx.lineTo(cx,cy+cl);
-  ctx.stroke();
+  // Center dot
+  const dotCol = (rollOk&&pitchOk) ? '#4ddf8a' : curCol();
+  ctx.fillStyle=hexRgba(dotCol,0.9);
+  ctx.beginPath(); ctx.arc(cx,cy,4,0,Math.PI*2); ctx.fill();
 
   // Angle readout
   ctx.font='300 10px "DM Mono",monospace'; ctx.textAlign='center';
-  ctx.fillStyle=hexRgba(lineCol,0.75);
-  ctx.fillText(`${roll>=0?'+':''}${roll.toFixed(1)}°  ${pitch>=0?'+':''}${pitch.toFixed(1)}°`, cx, cy+vLen/2+18);
+  ctx.fillStyle=hexRgba(dotCol,0.72);
+  ctx.fillText(
+    `${roll>=0?'+':''}${roll.toFixed(1)}°  ${pitch>=0?'+':''}${pitch.toFixed(1)}°`,
+    cx, cy + len/2 + 18
+  );
 }
 
 // ══════════════════════════════
@@ -579,22 +578,22 @@ function drawLevel(){
 // ══════════════════════════════
 document.getElementById('shutterBtn').addEventListener('click',()=>{
   if(!stream) return;
-  const flash=document.getElementById('flash');
+  const flash = document.getElementById('flash');
   flash.style.opacity='1'; setTimeout(()=>{ flash.style.opacity='0'; },80);
 
-  const v=document.getElementById('camVideo');
-  const vw=v.videoWidth, vh=v.videoHeight;
-  const off=document.createElement('canvas'); off.width=vw; off.height=vh;
-  const ox=off.getContext('2d');
+  const v  = document.getElementById('camVideo');
+  const vw = v.videoWidth, vh = v.videoHeight;
+  const off = document.createElement('canvas'); off.width=vw; off.height=vh;
+  const ox  = off.getContext('2d');
   ox.drawImage(v,0,0,vw,vh);
 
-  const {cX,cY,cW,cH,tHFov}=calcFrame(vw,vh);
-  const clipped=tHFov>=FOV_BASE*0.97;
-  const col=curCol();
+  const {cX,cY,cW,cH,tHFov} = calcFrame(vw,vh);
+  const clipped = tHFov >= FOV_BASE * 0.97;
+  const col = curCol();
 
   if(!clipped){
-    // Frame — thicker on capture
-    ox.strokeStyle=hexRgba(col,0.9); ox.lineWidth=Math.max(3,vw*0.003);
+    ox.strokeStyle=hexRgba(col,0.90);
+    ox.lineWidth=Math.max(3,vw*0.003);
     ox.strokeRect(cX,cY,cW,cH);
     const cs=Math.min(cW,cH)*0.08;
     ox.lineWidth=Math.max(5,vw*0.005);
@@ -618,7 +617,8 @@ document.getElementById('shutterBtn').addEventListener('click',()=>{
   ox.lineTo(bkX+bkW,bkY+bkH-rr); ox.arcTo(bkX+bkW,bkY+bkH,bkX+bkW-rr,bkY+bkH,rr);
   ox.lineTo(bkX+rr,bkY+bkH); ox.arcTo(bkX,bkY+bkH,bkX,bkY+bkH-rr,rr);
   ox.lineTo(bkX,bkY+rr); ox.arcTo(bkX,bkY,bkX+rr,bkY,rr); ox.closePath(); ox.fill();
-  ox.font=`300 ${fs}px "DM Mono",monospace`; ox.fillStyle=hexRgba(col,0.9);
+  ox.font=`300 ${fs}px "DM Mono",monospace`;
+  ox.fillStyle=hexRgba(col,0.9);
   lines.forEach((ln,i)=>ox.fillText(ln,bkX+pd,bkY+pd+fs+i*lh));
 
   off.toBlob(blob=>{
@@ -634,6 +634,8 @@ document.getElementById('shutterBtn').addEventListener('click',()=>{
 // ══════════════════════════════
 updateVFill();
 setFocal(S.fIdx);
+layoutSlider();
+window.addEventListener('load', layoutSlider);
 </script>
 </body>
 </html>
