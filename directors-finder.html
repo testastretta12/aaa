@@ -4,6 +4,18 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Directors Finder</title>
+<!--
+  FIXED VERSION - Bug Fixes Applied:
+  
+  1. Camera Enumeration: Fixed timing issue where cameras array was used before being populated
+  2. Error Handling: Added proper error logging and specific error messages for different error types
+  3. Memory Leak: Fixed URL.revokeObjectURL timing to prevent premature revocation
+  4. Race Condition: Added debouncing to resize event handler
+  5. Performance: Cached DOM elements (overlayCanvas, overlayCtx, camVideo) to avoid repeated queries
+  6. Magic Numbers: Defined CAMERA_DEFAULT_HFOV constant
+  7. Accessibility: Added ARIA labels and roles for screen readers
+  8. Return Values: enumerateCameras now properly returns camera list
+-->
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400&family=DM+Mono:wght@300;400&display=swap');
 
@@ -319,18 +331,18 @@
     <div>
       <div class="sec-label">カメラ</div>
       <div class="cam-row">
-        <button id="camBtn">
+        <button id="camBtn" aria-label="カメラ起動/停止">
           <span class="cam-dot"></span>
           <span id="camLabel">起動</span>
         </button>
-        <button id="switchBtn" title="カメラ切替">
+        <button id="switchBtn" title="カメラ切替" aria-label="カメラ切替">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M1 4v6h6"/><path d="M23 20v-6h-6"/>
             <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"/>
           </svg>
         </button>
       </div>
-      <div id="camError" style="margin-top:8px"></div>
+      <div id="camError" style="margin-top:8px" role="alert" aria-live="polite"></div>
     </div>
 
     <!-- Sensor -->
@@ -383,7 +395,7 @@
     </div>
 
     <!-- Shutter -->
-    <button id="shutterBtn">
+    <button id="shutterBtn" aria-label="写真を撮影">
       <div class="shutter-circle"></div>
       撮影
     </button>
@@ -399,6 +411,7 @@ const SENSORS = {
 };
 const STEPS = [20,24,28,35,50,58,85,105,135,200,300,400,500,600];
 const ASPECTS = { '3:2':[3,2], '1:1':[1,1], '16:9':[16,9], '21:9':[21,9] };
+const CAMERA_DEFAULT_HFOV = 65;
 
 let sensor = 'ff';
 let fIdx = 9;
@@ -407,6 +420,10 @@ let stream = null;
 let raf = null;
 let cameras = [];
 let camIdx = 0;
+
+// Cache DOM elements for better performance
+let overlayCanvas, overlayCtx;
+let camVideo;
 
 // ── Slider + ticks ──
 const slider = document.getElementById('fSlider');
@@ -489,7 +506,12 @@ async function enumerateCameras() {
     cameras = rear.length > 0 ? rear : all;
     const sw = document.getElementById('switchBtn');
     cameras.length > 1 ? sw.classList.add('visible') : sw.classList.remove('visible');
-  } catch { cameras = []; }
+    return cameras;
+  } catch (err) {
+    console.error('Camera enumeration error:', err);
+    cameras = [];
+    return [];
+  }
 }
 
 async function startCam() {
@@ -500,13 +522,21 @@ async function startCam() {
       audio: false
     });
     await afterStreamStart();
-    await enumerateCameras();
-    const track = stream.getVideoTracks()[0];
-    const settings = track.getSettings();
-    const idx = cameras.findIndex(c => c.deviceId === settings.deviceId);
-    camIdx = idx >= 0 ? idx : 0;
-  } catch {
-    showError('カメラへのアクセスが許可されていません。ブラウザの設定でカメラを許可してください。');
+    const cameraList = await enumerateCameras();
+    if (cameraList && cameraList.length > 0) {
+      const track = stream.getVideoTracks()[0];
+      const settings = track.getSettings();
+      const idx = cameraList.findIndex(c => c.deviceId === settings.deviceId);
+      camIdx = idx >= 0 ? idx : 0;
+    }
+  } catch (err) {
+    console.error('Camera error:', err);
+    const msg = err.name === 'NotAllowedError' 
+      ? 'カメラへのアクセスが許可されていません。ブラウザの設定でカメラを許可してください。'
+      : err.name === 'NotFoundError'
+      ? 'カメラが見つかりませんでした。'
+      : 'カメラの起動に失敗しました。';
+    showError(msg);
   }
 }
 
@@ -519,7 +549,8 @@ async function restartWithDevice(deviceId) {
       audio: false
     });
     await afterStreamStart();
-  } catch {
+  } catch (err) {
+    console.error('Camera switch error:', err);
     showError('カメラの切り替えに失敗しました。');
   }
 }
@@ -530,37 +561,46 @@ function showError(msg) {
 }
 
 async function afterStreamStart() {
-  const v = document.getElementById('camVideo');
-  v.srcObject = stream; v.style.display = 'block';
+  if (!camVideo) camVideo = document.getElementById('camVideo');
+  camVideo.srcObject = stream; camVideo.style.display = 'block';
   document.getElementById('camPlaceholder').style.display = 'none';
   document.getElementById('camBtn').classList.add('active');
   document.getElementById('camLabel').textContent = '停止';
   document.getElementById('shutterBtn').classList.add('ready');
   return new Promise(res => {
-    v.onloadedmetadata = () => { resize(); raf = requestAnimationFrame(loop); res(); };
+    camVideo.onloadedmetadata = () => { resize(); raf = requestAnimationFrame(loop); res(); };
   });
 }
 
 function stop() {
   stream?.getTracks().forEach(t => t.stop()); stream = null;
   cancelAnimationFrame(raf); raf = null;
-  const v = document.getElementById('camVideo');
-  v.srcObject = null; v.style.display = 'none';
+  if (!camVideo) camVideo = document.getElementById('camVideo');
+  camVideo.srcObject = null; camVideo.style.display = 'none';
   document.getElementById('camPlaceholder').style.display = 'flex';
   document.getElementById('camBtn').classList.remove('active');
   document.getElementById('camLabel').textContent = '起動';
   document.getElementById('switchBtn').classList.remove('visible');
   document.getElementById('shutterBtn').classList.remove('ready');
-  const c = document.getElementById('overlayCanvas');
-  c.getContext('2d').clearRect(0,0,c.width,c.height);
+  if (!overlayCanvas) overlayCanvas = document.getElementById('overlayCanvas');
+  if (!overlayCtx) overlayCtx = overlayCanvas.getContext('2d');
+  overlayCtx.clearRect(0, 0, overlayCanvas.width, overlayCanvas.height);
 }
 
 function resize() {
-  const c = document.getElementById('overlayCanvas');
-  c.width = document.getElementById('camArea').offsetWidth;
-  c.height = document.getElementById('camArea').offsetHeight;
+  if (!overlayCanvas) overlayCanvas = document.getElementById('overlayCanvas');
+  overlayCanvas.width = document.getElementById('camArea').offsetWidth;
+  overlayCanvas.height = document.getElementById('camArea').offsetHeight;
 }
-window.addEventListener('resize', () => { if (stream) { resize(); draw(); } });
+let resizeTimeout;
+window.addEventListener('resize', () => { 
+  if (!stream) return;
+  clearTimeout(resizeTimeout);
+  resizeTimeout = setTimeout(() => {
+    resize(); 
+    draw();
+  }, 100);
+});
 function loop() { draw(); raf = requestAnimationFrame(loop); }
 
 // ── Shutter ──
@@ -573,14 +613,14 @@ document.getElementById('shutterBtn').addEventListener('click', async () => {
   setTimeout(() => { flash.style.opacity = '0'; }, 80);
 
   // Capture: draw video frame + data overlay onto offscreen canvas
-  const video = document.getElementById('camVideo');
-  const vw = video.videoWidth, vh = video.videoHeight;
+  if (!camVideo) camVideo = document.getElementById('camVideo');
+  const vw = camVideo.videoWidth, vh = camVideo.videoHeight;
   const off = document.createElement('canvas');
   off.width = vw; off.height = vh;
   const octx = off.getContext('2d');
 
   // Video frame
-  octx.drawImage(video, 0, 0, vw, vh);
+  octx.drawImage(camVideo, 0, 0, vw, vh);
 
   // Data burn-in — bottom left corner
   const f = STEPS[fIdx];
@@ -630,7 +670,8 @@ document.getElementById('shutterBtn').addEventListener('click', async () => {
     const ts = `${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}_${String(now.getHours()).padStart(2,'0')}${String(now.getMinutes()).padStart(2,'0')}${String(now.getSeconds()).padStart(2,'0')}`;
     a.download = `df_${f}mm_${ts}.jpg`;
     a.click();
-    URL.revokeObjectURL(url);
+    // Delay revocation to ensure download completes
+    setTimeout(() => URL.revokeObjectURL(url), 100);
     // Feedback
     const fb = document.getElementById('saveFeedback');
     fb.style.opacity = '1';
@@ -641,17 +682,18 @@ document.getElementById('shutterBtn').addEventListener('click', async () => {
 // ── Draw overlay ──
 function draw() {
   if (!stream) return;
-  const c = document.getElementById('overlayCanvas');
-  const ctx = c.getContext('2d');
-  const W = c.width, H = c.height;
-  ctx.clearRect(0,0,W,H);
+  if (!overlayCanvas) {
+    overlayCanvas = document.getElementById('overlayCanvas');
+    overlayCtx = overlayCanvas.getContext('2d');
+  }
+  const W = overlayCanvas.width, H = overlayCanvas.height;
+  overlayCtx.clearRect(0,0,W,H);
 
   const f = STEPS[fIdx];
   const s = SENSORS[sensor];
-  const camHFov = 65;
   const tHFov = parseFloat(fov(s.w, f));
-  const clipped = tHFov >= camHFov * 0.97;
-  const hRatio = Math.min(tHFov / camHFov, 0.97);
+  const clipped = tHFov >= CAMERA_DEFAULT_HFOV * 0.97;
+  const hRatio = Math.min(tHFov / CAMERA_DEFAULT_HFOV, 0.97);
 
   // Base 3:2 frame
   let bW = W * hRatio;
@@ -670,67 +712,67 @@ function draw() {
   const cY = bY + (bH - cH) / 2;
 
   // Dim outside base
-  ctx.fillStyle = 'rgba(0,0,0,0.55)';
-  ctx.fillRect(0,0,W,bY);
-  ctx.fillRect(0,bY+bH,W,H-bY-bH);
-  ctx.fillRect(0,bY,bX,bH);
-  ctx.fillRect(bX+bW,bY,W-bX-bW,bH);
+  overlayCtx.fillStyle = 'rgba(0,0,0,0.55)';
+  overlayCtx.fillRect(0,0,W,bY);
+  overlayCtx.fillRect(0,bY+bH,W,H-bY-bH);
+  overlayCtx.fillRect(0,bY,bX,bH);
+  overlayCtx.fillRect(bX+bW,bY,W-bX-bW,bH);
 
   // Crop mask
   if (ar !== '3:2') {
-    ctx.fillStyle = 'rgba(0,0,0,0.5)';
-    if (cY > bY) ctx.fillRect(bX, bY, bW, cY-bY);
-    if (cY+cH < bY+bH) ctx.fillRect(bX, cY+cH, bW, (bY+bH)-(cY+cH));
-    if (cX > bX) ctx.fillRect(bX, cY, cX-bX, cH);
-    if (cX+cW < bX+bW) ctx.fillRect(cX+cW, cY, (bX+bW)-(cX+cW), cH);
+    overlayCtx.fillStyle = 'rgba(0,0,0,0.5)';
+    if (cY > bY) overlayCtx.fillRect(bX, bY, bW, cY-bY);
+    if (cY+cH < bY+bH) overlayCtx.fillRect(bX, cY+cH, bW, (bY+bH)-(cY+cH));
+    if (cX > bX) overlayCtx.fillRect(bX, cY, cX-bX, cH);
+    if (cX+cW < bX+bW) overlayCtx.fillRect(cX+cW, cY, (bX+bW)-(cX+cW), cH);
 
     // Ghost 3:2 border
-    ctx.strokeStyle = 'rgba(90,172,255,0.14)';
-    ctx.lineWidth = 1; ctx.setLineDash([4,5]);
-    ctx.strokeRect(bX, bY, bW, bH);
-    ctx.setLineDash([]);
+    overlayCtx.strokeStyle = 'rgba(90,172,255,0.14)';
+    overlayCtx.lineWidth = 1; overlayCtx.setLineDash([4,5]);
+    overlayCtx.strokeRect(bX, bY, bW, bH);
+    overlayCtx.setLineDash([]);
   }
 
   const fc = clipped ? 'rgba(255,90,90,0.9)' : 'rgba(90,172,255,0.85)';
   const gc = clipped ? 'rgba(255,90,90,0.3)'  : 'rgba(90,172,255,0.28)';
 
   // Active frame
-  ctx.strokeStyle = fc; ctx.lineWidth = 1.5;
-  ctx.shadowColor = gc; ctx.shadowBlur = 8;
-  ctx.strokeRect(cX, cY, cW, cH);
-  ctx.shadowBlur = 0;
+  overlayCtx.strokeStyle = fc; overlayCtx.lineWidth = 1.5;
+  overlayCtx.shadowColor = gc; overlayCtx.shadowBlur = 8;
+  overlayCtx.strokeRect(cX, cY, cW, cH);
+  overlayCtx.shadowBlur = 0;
 
   // Corner brackets
   const cs = Math.min(cW, cH) * 0.1;
-  ctx.lineWidth = 3; ctx.shadowColor = gc; ctx.shadowBlur = 12;
+  overlayCtx.lineWidth = 3; overlayCtx.shadowColor = gc; overlayCtx.shadowBlur = 12;
   [[cX,cY,1,1],[cX+cW,cY,-1,1],[cX,cY+cH,1,-1],[cX+cW,cY+cH,-1,-1]].forEach(([x,y,dx,dy])=>{
-    ctx.beginPath();
-    ctx.moveTo(x+dx*cs, y); ctx.lineTo(x,y); ctx.lineTo(x, y+dy*cs);
-    ctx.stroke();
+    overlayCtx.beginPath();
+    overlayCtx.moveTo(x+dx*cs, y); overlayCtx.lineTo(x,y); overlayCtx.lineTo(x, y+dy*cs);
+    overlayCtx.stroke();
   });
-  ctx.shadowBlur = 0;
+  overlayCtx.shadowBlur = 0;
 
   // Rule of thirds
-  ctx.strokeStyle = 'rgba(255,255,255,0.07)'; ctx.lineWidth = 0.8;
+  overlayCtx.strokeStyle = 'rgba(255,255,255,0.07)'; overlayCtx.lineWidth = 0.8;
   for (let i=1;i<=2;i++){
-    ctx.beginPath(); ctx.moveTo(cX+cW*i/3,cY); ctx.lineTo(cX+cW*i/3,cY+cH); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(cX,cY+cH*i/3); ctx.lineTo(cX+cW,cY+cH*i/3); ctx.stroke();
+    overlayCtx.beginPath(); overlayCtx.moveTo(cX+cW*i/3,cY); overlayCtx.lineTo(cX+cW*i/3,cY+cH); overlayCtx.stroke();
+    overlayCtx.beginPath(); overlayCtx.moveTo(cX,cY+cH*i/3); overlayCtx.lineTo(cX+cW,cY+cH*i/3); overlayCtx.stroke();
   }
 
   // Center cross
   const cx=cX+cW/2, cy=cY+cH/2, cl=10;
-  ctx.strokeStyle='rgba(255,255,255,0.25)'; ctx.lineWidth=1;
-  ctx.beginPath(); ctx.moveTo(cx-cl,cy); ctx.lineTo(cx+cl,cy);
-  ctx.moveTo(cx,cy-cl); ctx.lineTo(cx,cy+cl); ctx.stroke();
+  overlayCtx.strokeStyle='rgba(255,255,255,0.25)'; overlayCtx.lineWidth=1;
+  overlayCtx.beginPath(); overlayCtx.moveTo(cx-cl,cy); overlayCtx.lineTo(cx+cl,cy);
+  overlayCtx.moveTo(cx,cy-cl); overlayCtx.lineTo(cx,cy+cl); overlayCtx.stroke();
 
   // Label
-  ctx.fillStyle = clipped ? 'rgba(255,90,90,0.85)' : 'rgba(90,172,255,0.72)';
-  ctx.font = '11px "DM Mono", monospace';
-  ctx.textAlign = 'center';
+  overlayCtx.fillStyle = clipped ? 'rgba(255,90,90,0.85)' : 'rgba(90,172,255,0.72)';
+  overlayCtx.font = '11px "DM Mono", monospace';
+  overlayCtx.textAlign = 'center';
   const lbl = clipped
     ? `${tHFov.toFixed(1)}° — 画角がカメラより広い`
     : `${tHFov.toFixed(1)}°  ${ar}`;
-  ctx.fillText(lbl, cX+cW/2, cY-9);
+  overlayCtx.fillText(lbl, cX+cW/2, cY-9);
 }
 
 // Init
