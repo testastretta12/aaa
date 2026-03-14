@@ -24,158 +24,77 @@
 
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-  html, body {
-    height: 100%;
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Noto Sans JP', sans-serif;
-    font-weight: 300;
-    overflow: hidden;
-  }
+  html, body { height: 100%; background: var(--bg); color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif; font-weight: 300; overflow: hidden; }
 
-  #app {
-    width: 100dvw;
-    height: 100dvh;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-  }
+  #app { width: 100dvw; height: 100dvh; position: relative; display: flex; flex-direction: column; }
 
-  /* Camera layer */
-  #camLayer {
-    position: absolute;
-    inset: 0;
-    background: #000;
-    z-index: 0;
-  }
-  #camVideo {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: none;
-  }
-  #overlayCanvas {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-  }
+  /* Camera */
+  #camLayer { position: absolute; inset: 0; background: #000; z-index: 0; }
+  #camVideo { width: 100%; height: 100%; object-fit: cover; display: none; }
+  #overlayCanvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+
   #camPlaceholder {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 14px;
-    opacity: 0.3;
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px; opacity: 0.28;
   }
   .ph-icon {
-    width: 52px; height: 40px;
-    border: 1.5px solid var(--text-dim);
-    border-radius: 6px;
-    position: relative;
+    width: 52px; height: 40px; border: 1.5px solid var(--text-dim); border-radius: 6px; position: relative;
   }
   .ph-icon::before {
-    content: '';
-    position: absolute;
-    top: -9px; left: 50%;
-    transform: translateX(-50%);
-    width: 14px; height: 8px;
-    border: 1.5px solid var(--text-dim);
-    border-radius: 3px 3px 0 0;
-    border-bottom: none;
+    content: ''; position: absolute; top: -9px; left: 50%; transform: translateX(-50%);
+    width: 14px; height: 8px; border: 1.5px solid var(--text-dim); border-radius: 3px 3px 0 0; border-bottom: none;
   }
   .ph-icon::after {
-    content: '';
-    position: absolute;
-    inset: 7px;
-    border-radius: 50%;
-    border: 1.5px solid var(--text-dim);
+    content: ''; position: absolute; inset: 7px; border-radius: 50%; border: 1.5px solid var(--text-dim);
   }
-  #camPlaceholder p {
-    font-size: 11px;
-    color: var(--text-dim);
-    letter-spacing: 0.1em;
-  }
+  #camPlaceholder p { font-size: 11px; color: var(--text-dim); letter-spacing: 0.1em; }
 
   /* Panel */
   #panel {
-    position: relative;
-    z-index: 10;
-    margin-top: auto;
+    position: relative; z-index: 10; margin-top: auto;
     background: rgba(8,10,13,0.93);
     backdrop-filter: blur(24px) saturate(1.5);
     -webkit-backdrop-filter: blur(24px) saturate(1.5);
     border-top: 1px solid var(--border);
-    padding: 14px 18px 22px;
-    display: flex;
-    flex-direction: column;
-    gap: 13px;
+    padding: 14px 18px 24px;
+    display: flex; flex-direction: column; gap: 13px;
   }
 
-  .top-bar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .app-title {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 0.2em;
-    color: var(--text-dim);
-    text-transform: uppercase;
-  }
-  #camBtn {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    padding: 7px 14px;
-    cursor: pointer;
-    transition: all 0.18s;
-    font-family: 'Noto Sans JP', sans-serif;
-    font-weight: 300;
-    font-size: 12px;
-    color: var(--text);
-  }
-  #camBtn.active {
-    background: var(--red-dim);
-    border-color: var(--red);
-    color: var(--red);
-  }
-  .cam-dot {
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    background: var(--text-dim);
-    transition: all 0.18s;
+  /* Top bar */
+  .top-bar { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .app-title { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.2em; color: var(--text-dim); text-transform: uppercase; flex-shrink: 0; }
+
+  .top-btns { display: flex; gap: 6px; }
+
+  .icon-btn {
+    display: flex; align-items: center; justify-content: center;
+    width: 36px; height: 36px;
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 50%;
+    cursor: pointer; transition: all 0.16s; color: var(--text-dim);
     flex-shrink: 0;
   }
-  #camBtn.active .cam-dot {
-    background: var(--red);
-    box-shadow: 0 0 6px var(--red);
-    animation: blink 1.4s ease-in-out infinite;
+  .icon-btn:active { opacity: 0.7; }
+  .icon-btn.hidden { display: none; }
+
+  #camBtn {
+    display: flex; align-items: center; gap: 7px;
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 20px;
+    padding: 7px 14px; cursor: pointer; transition: all 0.18s;
+    font-family: 'Noto Sans JP', sans-serif; font-weight: 300; font-size: 12px; color: var(--text);
   }
+  #camBtn.active { background: var(--red-dim); border-color: var(--red); color: var(--red); }
+  .cam-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-dim); transition: all 0.18s; flex-shrink: 0; }
+  #camBtn.active .cam-dot { background: var(--red); box-shadow: 0 0 6px var(--red); animation: blink 1.4s ease-in-out infinite; }
   @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.35} }
 
   /* Sensor */
   .sensor-tabs { display: flex; gap: 6px; }
   .s-tab {
-    flex: 1;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    padding: 9px 0;
-    cursor: pointer;
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
-    transition: all 0.14s;
+    flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: 7px;
+    padding: 9px 0; cursor: pointer; text-align: center;
+    display: flex; flex-direction: column; align-items: center; gap: 3px; transition: all 0.14s;
   }
   .s-tab .tn { font-size: 12px; color: var(--text); font-weight: 400; }
   .s-tab .td { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text-dim); }
@@ -185,121 +104,59 @@
 
   /* Focal */
   .focal-block { display: flex; flex-direction: column; gap: 8px; }
-  .focal-hdr {
-    display: flex;
-    align-items: baseline;
-    justify-content: space-between;
-  }
+  .focal-hdr { display: flex; align-items: baseline; justify-content: space-between; }
   .fl { font-size: 9px; letter-spacing: 0.15em; color: var(--text-dim); text-transform: uppercase; }
-  .fv {
-    font-family: 'DM Mono', monospace;
-    font-size: 28px;
-    font-weight: 300;
-    color: var(--text-bright);
-    line-height: 1;
-  }
+  .fv { font-family: 'DM Mono', monospace; font-size: 28px; font-weight: 300; color: var(--text-bright); line-height: 1; }
   .fv em { font-style: normal; font-size: 13px; color: var(--text-dim); margin-left: 3px; }
 
   .slider-wrap { position: relative; height: 34px; display: flex; align-items: center; }
   input[type=range] {
-    -webkit-appearance: none;
-    appearance: none;
-    width: 100%;
-    height: 2px;
-    background: transparent;
-    outline: none;
-    cursor: pointer;
-    position: relative;
-    z-index: 2;
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 2px; background: transparent; outline: none; cursor: pointer; position: relative; z-index: 2;
   }
-  input[type=range]::-webkit-slider-runnable-track {
-    height: 2px;
-    background: var(--border);
-    border-radius: 1px;
-  }
+  input[type=range]::-webkit-slider-runnable-track { height: 2px; background: var(--border); border-radius: 1px; }
   input[type=range]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-    width: 24px; height: 24px;
-    border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 12px var(--accent-glow);
-    margin-top: -11px;
-    cursor: pointer;
-    transition: box-shadow 0.15s;
+    -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%;
+    background: var(--accent); box-shadow: 0 0 12px var(--accent-glow); margin-top: -11px; cursor: pointer;
   }
-  input[type=range]:active::-webkit-slider-thumb {
-    box-shadow: 0 0 20px var(--accent-glow);
-  }
+  input[type=range]:active::-webkit-slider-thumb { box-shadow: 0 0 20px var(--accent-glow); }
   .track-fill {
-    position: absolute;
-    left: 0; top: 50%;
-    transform: translateY(-50%);
-    height: 2px;
-    background: var(--accent);
-    border-radius: 1px;
-    pointer-events: none;
-    z-index: 1;
+    position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+    height: 2px; background: var(--accent); border-radius: 1px; pointer-events: none; z-index: 1;
   }
 
   .tick-row { display: flex; justify-content: space-between; padding: 0 2px; }
-  .tick {
-    font-family: 'DM Mono', monospace;
-    font-size: 8px;
-    color: var(--text-dim);
-    cursor: pointer;
-    padding: 3px 1px;
-    transition: color 0.12s;
-    user-select: none;
-  }
+  .tick { font-family: 'DM Mono', monospace; font-size: 8px; color: var(--text-dim); cursor: pointer; padding: 3px 1px; transition: color 0.12s; user-select: none; }
   .tick.active { color: var(--accent); }
 
   /* Bottom row */
   .bottom-row { display: flex; align-items: center; gap: 10px; }
   .aspect-tabs { display: flex; gap: 5px; flex-shrink: 0; }
   .a-tab {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 5px;
-    padding: 7px 9px;
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: var(--text-dim);
-    cursor: pointer;
-    transition: all 0.12s;
-    white-space: nowrap;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 5px;
+    padding: 7px 9px; font-family: 'DM Mono', monospace; font-size: 10px;
+    color: var(--text-dim); cursor: pointer; transition: all 0.12s; white-space: nowrap;
   }
   .a-tab.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
 
   .fov-display { flex: 1; display: flex; gap: 6px; justify-content: flex-end; }
   .fov-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 5px;
-    padding: 5px 8px;
-    min-width: 46px;
+    display: flex; flex-direction: column; align-items: center; gap: 2px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 5px;
+    padding: 5px 8px; min-width: 46px;
   }
   .fi-l { font-size: 8px; letter-spacing: 0.1em; color: var(--text-dim); text-transform: uppercase; }
   .fi-v { font-family: 'DM Mono', monospace; font-size: 14px; color: var(--accent); font-weight: 400; }
 
   #camError {
-    display: none;
-    padding: 9px 12px;
-    background: var(--red-dim);
-    border: 1px solid rgba(255,90,90,0.3);
-    border-radius: 6px;
-    font-size: 11px;
-    color: var(--red);
-    line-height: 1.7;
+    display: none; padding: 9px 12px;
+    background: var(--red-dim); border: 1px solid rgba(255,90,90,0.3);
+    border-radius: 6px; font-size: 11px; color: var(--red); line-height: 1.7;
   }
 </style>
 </head>
 <body>
 <div id="app">
-
   <div id="camLayer">
     <div id="camPlaceholder">
       <div class="ph-icon"></div>
@@ -310,13 +167,21 @@
   </div>
 
   <div id="panel">
-
     <div class="top-bar">
       <span class="app-title">Directors Finder</span>
-      <button id="camBtn">
-        <span class="cam-dot"></span>
-        <span id="camLabel">カメラ起動</span>
-      </button>
+      <div class="top-btns">
+        <!-- Camera switch button (shown when camera active and multiple cameras exist) -->
+        <button class="icon-btn hidden" id="switchBtn" title="カメラ切替">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 4v6h6"/><path d="M23 20v-6h-6"/>
+            <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4-4.64 4.36A9 9 0 0 1 3.51 15"/>
+          </svg>
+        </button>
+        <button id="camBtn">
+          <span class="cam-dot"></span>
+          <span id="camLabel">カメラ起動</span>
+        </button>
+      </div>
     </div>
 
     <div class="sensor-tabs" id="sensorTabs">
@@ -366,20 +231,22 @@ const SENSORS = {
   apsc: { w: 23.5, h: 15.6 },
 };
 const STEPS = [20,24,28,35,50,58,85,105,135,200,300,400,500,600];
-const ASPECTS = { '1:1':[1,1], '3:2':[3,2], '16:9':[16,9], '21:9':[21,9] };
+// All ratios expressed as [w, h]
+const ASPECTS = { '3:2':[3,2], '1:1':[1,1], '16:9':[16,9], '21:9':[21,9] };
 
 let sensor = 'ff';
 let fIdx = 9;
 let ar = '3:2';
 let stream = null;
 let raf = null;
+let cameras = [];      // list of available video devices
+let camIdx = 0;        // current camera index
 
-// Slider setup
+// ── Slider ──
 const slider = document.getElementById('fSlider');
 slider.max = STEPS.length - 1;
 slider.value = fIdx;
 
-// Ticks
 const tickRow = document.getElementById('tickRow');
 STEPS.forEach((f, i) => {
   const t = document.createElement('div');
@@ -398,15 +265,12 @@ function setFocal(i) {
   calc();
   draw();
 }
-
 function updateFill() {
-  const pct = fIdx / (STEPS.length - 1) * 100;
-  document.getElementById('trackFill').style.width = pct + '%';
+  document.getElementById('trackFill').style.width = (fIdx / (STEPS.length - 1) * 100) + '%';
 }
-
 slider.addEventListener('input', () => setFocal(+slider.value));
 
-// Sensor
+// ── Sensor ──
 document.getElementById('sensorTabs').addEventListener('click', e => {
   const tab = e.target.closest('.s-tab');
   if (!tab) return;
@@ -415,7 +279,7 @@ document.getElementById('sensorTabs').addEventListener('click', e => {
   calc(); draw();
 });
 
-// Aspect
+// ── Aspect ──
 document.getElementById('aspectTabs').addEventListener('click', e => {
   const tab = e.target.closest('.a-tab');
   if (!tab) return;
@@ -424,7 +288,7 @@ document.getElementById('aspectTabs').addEventListener('click', e => {
   draw();
 });
 
-// FOV
+// ── FOV ──
 function fov(dim, f) {
   return (2 * Math.atan(dim / (2 * f)) * 180 / Math.PI).toFixed(1);
 }
@@ -436,26 +300,40 @@ function calc() {
   document.getElementById('dFov').textContent = fov(Math.hypot(s.w, s.h), f);
 }
 
-// Camera
-document.getElementById('camBtn').addEventListener('click', () => {
-  stream ? stop() : start();
+// ── Camera ──
+document.getElementById('camBtn').addEventListener('click', () => { stream ? stop() : startCam(); });
+
+document.getElementById('switchBtn').addEventListener('click', () => {
+  if (cameras.length < 2) return;
+  camIdx = (camIdx + 1) % cameras.length;
+  restartWithDevice(cameras[camIdx].deviceId);
 });
 
-async function start() {
+async function enumerateCameras() {
+  try {
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    cameras = devices.filter(d => d.kind === 'videoinput');
+    // Show switch button only if multiple cameras
+    document.getElementById('switchBtn').classList.toggle('hidden', cameras.length < 2);
+  } catch { cameras = []; }
+}
+
+async function startCam() {
   document.getElementById('camError').style.display = 'none';
   try {
+    // First try environment-facing camera
     stream = await navigator.mediaDevices.getUserMedia({
       video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 } },
       audio: false
     });
-    const v = document.getElementById('camVideo');
-    v.srcObject = stream;
-    v.style.display = 'block';
-    document.getElementById('camPlaceholder').style.display = 'none';
-    const btn = document.getElementById('camBtn');
-    btn.classList.add('active');
-    document.getElementById('camLabel').textContent = 'カメラ停止';
-    v.onloadedmetadata = () => { resize(); raf = requestAnimationFrame(loop); };
+    await afterStreamStart();
+    // After permission granted, enumerate cameras
+    await enumerateCameras();
+    // Find index of current device
+    const track = stream.getVideoTracks()[0];
+    const settings = track.getSettings();
+    camIdx = cameras.findIndex(c => c.deviceId === settings.deviceId);
+    if (camIdx < 0) camIdx = 0;
   } catch {
     const e = document.getElementById('camError');
     e.style.display = 'block';
@@ -463,28 +341,56 @@ async function start() {
   }
 }
 
+async function restartWithDevice(deviceId) {
+  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
+  cancelAnimationFrame(raf); raf = null;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({
+      video: { deviceId: { exact: deviceId }, width: { ideal: 1920 } },
+      audio: false
+    });
+    await afterStreamStart();
+  } catch {
+    const e = document.getElementById('camError');
+    e.style.display = 'block';
+    e.textContent = 'カメラの切り替えに失敗しました。';
+  }
+}
+
+async function afterStreamStart() {
+  const v = document.getElementById('camVideo');
+  v.srcObject = stream;
+  v.style.display = 'block';
+  document.getElementById('camPlaceholder').style.display = 'none';
+  const btn = document.getElementById('camBtn');
+  btn.classList.add('active');
+  document.getElementById('camLabel').textContent = 'カメラ停止';
+  return new Promise(res => {
+    v.onloadedmetadata = () => { resize(); raf = requestAnimationFrame(loop); res(); };
+  });
+}
+
 function stop() {
-  stream?.getTracks().forEach(t => t.stop());
-  stream = null;
+  stream?.getTracks().forEach(t => t.stop()); stream = null;
   cancelAnimationFrame(raf); raf = null;
   const v = document.getElementById('camVideo');
   v.srcObject = null; v.style.display = 'none';
   document.getElementById('camPlaceholder').style.display = 'flex';
   document.getElementById('camBtn').classList.remove('active');
   document.getElementById('camLabel').textContent = 'カメラ起動';
+  document.getElementById('switchBtn').classList.add('hidden');
   const c = document.getElementById('overlayCanvas');
   c.getContext('2d').clearRect(0,0,c.width,c.height);
 }
 
 function resize() {
   const c = document.getElementById('overlayCanvas');
-  c.width = window.innerWidth;
-  c.height = window.innerHeight;
+  c.width = window.innerWidth; c.height = window.innerHeight;
 }
 window.addEventListener('resize', () => { if (stream) { resize(); draw(); } });
-
 function loop() { draw(); raf = requestAnimationFrame(loop); }
 
+// ── Draw overlay ──
 function draw() {
   if (!stream) return;
   const c = document.getElementById('overlayCanvas');
@@ -494,9 +400,8 @@ function draw() {
 
   const f = STEPS[fIdx];
   const s = SENSORS[sensor];
-  const camHFov = 65; // typical smartphone rear ~26mm equiv
+  const camHFov = 65; // ~26mm FF equiv for typical smartphone main cam
   const tHFov = parseFloat(fov(s.w, f));
-  const [arW, arH] = ASPECTS[ar];
   const clipped = tHFov >= camHFov * 0.97;
   const hRatio = Math.min(tHFov / camHFov, 0.97);
 
@@ -504,57 +409,105 @@ function draw() {
   const pH = panel.offsetHeight;
   const availH = H - pH;
 
+  // Base frame: always 3:2
+  const base = ASPECTS['3:2'];
   let bW = W * hRatio;
-  let bH = bW * arH / arW;
-  if (bH > availH * 0.9) { bH = availH * 0.9; bW = bH * arW / arH; }
+  let bH = bW * base[1] / base[0];
+  if (bH > availH * 0.9) { bH = availH * 0.9; bW = bH * base[0] / base[1]; }
 
   const bX = (W - bW) / 2;
   const bY = (availH - bH) / 2;
 
-  // Dim
+  // Crop frame: same width or height as base, cropped to selected ar
+  const [arW, arH] = ASPECTS[ar];
+  // Selected ar vs 3:2
+  const baseAr = 3/2;
+  const selAr = arW / arH;
+
+  let cW, cH;
+  if (selAr >= baseAr) {
+    // wider or same → crop top/bottom (1:1 impossible to be wider, but 21:9 is)
+    cW = bW;
+    cH = bW / selAr;
+  } else {
+    // narrower → crop left/right (1:1)
+    cH = bH;
+    cW = bH * selAr;
+  }
+
+  const cX = bX + (bW - cW) / 2;
+  const cY = bY + (bH - cH) / 2;
+
+  // ── Draw ──
+  // 1. Outer dim (everything outside 3:2 base)
   ctx.fillStyle = 'rgba(0,0,0,0.55)';
   ctx.fillRect(0,0,W,bY);
   ctx.fillRect(0,bY+bH,W,availH-bY-bH);
   ctx.fillRect(0,bY,bX,bH);
   ctx.fillRect(bX+bW,bY,W-bX-bW,bH);
 
+  // 2. Crop mask (inside 3:2 but outside selected ar) — darker
+  if (ar !== '3:2') {
+    ctx.fillStyle = 'rgba(0,0,0,0.52)';
+    // top strip
+    if (cY > bY) ctx.fillRect(bX, bY, bW, cY - bY);
+    // bottom strip
+    if (cY + cH < bY + bH) ctx.fillRect(bX, cY + cH, bW, (bY + bH) - (cY + cH));
+    // left strip
+    if (cX > bX) ctx.fillRect(bX, cY, cX - bX, cH);
+    // right strip
+    if (cX + cW < bX + bW) ctx.fillRect(cX + cW, cY, (bX + bW) - (cX + cW), cH);
+  }
+
+  // 3. Ghost 3:2 border (dim, only when not 3:2)
+  if (ar !== '3:2') {
+    ctx.strokeStyle = 'rgba(90,172,255,0.15)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.strokeRect(bX, bY, bW, bH);
+    ctx.setLineDash([]);
+  }
+
   const fc = clipped ? 'rgba(255,90,90,0.9)' : 'rgba(90,172,255,0.85)';
   const gc = clipped ? 'rgba(255,90,90,0.35)' : 'rgba(90,172,255,0.3)';
 
-  // Frame
+  // 4. Active frame border
   ctx.strokeStyle = fc; ctx.lineWidth = 1.5;
   ctx.shadowColor = gc; ctx.shadowBlur = 8;
-  ctx.strokeRect(bX, bY, bW, bH);
+  ctx.strokeRect(cX, cY, cW, cH);
   ctx.shadowBlur = 0;
 
-  // Corners
-  const cs = Math.min(bW,bH) * 0.1;
+  // 5. Corner brackets
+  const cs = Math.min(cW, cH) * 0.1;
   ctx.lineWidth = 3; ctx.shadowColor = gc; ctx.shadowBlur = 14;
-  [[bX,bY,1,1],[bX+bW,bY,-1,1],[bX,bY+bH,1,-1],[bX+bW,bY+bH,-1,-1]].forEach(([x,y,dx,dy])=>{
+  [[cX,cY,1,1],[cX+cW,cY,-1,1],[cX,cY+cH,1,-1],[cX+cW,cY+cH,-1,-1]].forEach(([x,y,dx,dy])=>{
     ctx.beginPath();
     ctx.moveTo(x+dx*cs, y); ctx.lineTo(x,y); ctx.lineTo(x, y+dy*cs);
     ctx.stroke();
   });
   ctx.shadowBlur = 0;
 
-  // Rule of thirds
+  // 6. Rule of thirds (inside crop frame)
   ctx.strokeStyle = 'rgba(255,255,255,0.07)'; ctx.lineWidth = 0.8;
   for (let i=1;i<=2;i++){
-    ctx.beginPath(); ctx.moveTo(bX+bW*i/3,bY); ctx.lineTo(bX+bW*i/3,bY+bH); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(bX,bY+bH*i/3); ctx.lineTo(bX+bW,bY+bH*i/3); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cX+cW*i/3,cY); ctx.lineTo(cX+cW*i/3,cY+cH); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cX,cY+cH*i/3); ctx.lineTo(cX+cW,cY+cH*i/3); ctx.stroke();
   }
 
-  // Center cross
-  const cx=bX+bW/2, cy=bY+bH/2, cl=10;
+  // 7. Center cross
+  const cx2=cX+cW/2, cy2=cY+cH/2, cl=10;
   ctx.strokeStyle='rgba(255,255,255,0.28)'; ctx.lineWidth=1;
-  ctx.beginPath(); ctx.moveTo(cx-cl,cy); ctx.lineTo(cx+cl,cy); ctx.moveTo(cx,cy-cl); ctx.lineTo(cx,cy+cl); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(cx2-cl,cy2); ctx.lineTo(cx2+cl,cy2);
+  ctx.moveTo(cx2,cy2-cl); ctx.lineTo(cx2,cy2+cl); ctx.stroke();
 
-  // Label
+  // 8. Label
   ctx.fillStyle = clipped ? 'rgba(255,90,90,0.85)' : 'rgba(90,172,255,0.75)';
   ctx.font = '11px "DM Mono", monospace';
   ctx.textAlign = 'center';
-  const lbl = clipped ? `${tHFov.toFixed(1)}° — 画角がカメラより広い` : `${tHFov.toFixed(1)}°  ${ar}`;
-  ctx.fillText(lbl, bX+bW/2, bY-9);
+  const lbl = clipped
+    ? `${tHFov.toFixed(1)}° — 画角がカメラより広い`
+    : `${tHFov.toFixed(1)}°  ${ar}`;
+  ctx.fillText(lbl, cX+cW/2, cY - 9);
 }
 
 // Init
