@@ -5,600 +5,561 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>Directors Finder</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400&family=DM+Mono:wght@300;400&display=swap');
 
   :root {
-    --bg: #0a0c0f;
-    --surface: #111418;
-    --border: #1e2530;
-    --accent: #4a9eff;
-    --accent-dim: rgba(74,158,255,0.15);
-    --text: #c8d4e0;
-    --text-dim: #5a6a7a;
-    --text-bright: #e8f0f8;
-    --overlay-color: rgba(74,158,255,0.85);
+    --bg: #080a0d;
+    --surface: #0f1318;
+    --surface2: #151b22;
+    --border: #1c2530;
+    --accent: #5aacff;
+    --accent-dim: rgba(90,172,255,0.12);
+    --accent-glow: rgba(90,172,255,0.25);
+    --text: #b8c8d8;
+    --text-dim: #48586a;
+    --text-bright: #ddeeff;
     --red: #ff5a5a;
+    --red-dim: rgba(255,90,90,0.15);
   }
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-  body {
+  html, body {
+    height: 100%;
     background: var(--bg);
     color: var(--text);
     font-family: 'Noto Sans JP', sans-serif;
     font-weight: 300;
-    min-height: 100dvh;
-    overflow-x: hidden;
-  }
-
-  /* ── Header ── */
-  header {
-    padding: 16px 20px 12px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-  }
-  header h1 {
-    font-family: 'DM Mono', monospace;
-    font-weight: 400;
-    font-size: 15px;
-    letter-spacing: 0.12em;
-    color: var(--accent);
-    text-transform: uppercase;
-  }
-  header span {
-    font-size: 11px;
-    color: var(--text-dim);
-    letter-spacing: 0.05em;
-  }
-
-  /* ── Controls ── */
-  .controls {
-    padding: 18px 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-
-  .field-label {
-    font-size: 10px;
-    letter-spacing: 0.15em;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    margin-bottom: 8px;
-  }
-
-  /* Sensor chips */
-  .sensor-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
-  }
-  .sensor-chip {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 10px 12px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-  .sensor-chip:active { transform: scale(0.97); }
-  .sensor-chip.active {
-    border-color: var(--accent);
-    background: var(--accent-dim);
-  }
-  .sensor-chip .chip-name {
-    font-size: 12px;
-    color: var(--text-bright);
-    font-weight: 400;
-  }
-  .sensor-chip .chip-size {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: var(--text-dim);
-  }
-  .sensor-chip.active .chip-name { color: var(--accent); }
-  .sensor-chip.active .chip-size { color: rgba(74,158,255,0.6); }
-
-  /* Focal length */
-  .focal-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .focal-input {
-    flex: 1;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 12px 14px;
-    font-family: 'DM Mono', monospace;
-    font-size: 22px;
-    font-weight: 300;
-    color: var(--text-bright);
-    text-align: right;
-    outline: none;
-    transition: border-color 0.15s;
-    -webkit-appearance: none;
-    appearance: none;
-  }
-  .focal-input:focus { border-color: var(--accent); }
-  .focal-unit {
-    font-family: 'DM Mono', monospace;
-    font-size: 13px;
-    color: var(--text-dim);
-    width: 24px;
-  }
-
-  /* Quick presets */
-  .presets {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-  }
-  .preset-btn {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 5px 10px;
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--text-dim);
-    cursor: pointer;
-    transition: all 0.12s;
-  }
-  .preset-btn:active {
-    background: var(--accent-dim);
-    color: var(--accent);
-    border-color: var(--accent);
-  }
-
-  /* ── Result ── */
-  .result-bar {
-    margin: 0 20px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 14px 18px;
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 8px;
-  }
-  .result-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-  }
-  .result-item .r-label {
-    font-size: 9px;
-    letter-spacing: 0.12em;
-    color: var(--text-dim);
-    text-transform: uppercase;
-  }
-  .result-item .r-value {
-    font-family: 'DM Mono', monospace;
-    font-size: 20px;
-    font-weight: 400;
-    color: var(--accent);
-    transition: all 0.2s;
-  }
-  .result-item .r-unit {
-    font-family: 'DM Mono', monospace;
-    font-size: 9px;
-    color: var(--text-dim);
-  }
-  .eq-note {
-    margin: 6px 20px 0;
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: var(--text-dim);
-    letter-spacing: 0.05em;
-  }
-
-  /* ── Divider ── */
-  .divider {
-    height: 1px;
-    background: var(--border);
-    margin: 16px 20px;
-  }
-
-  /* ── Camera View ── */
-  .camera-section { padding: 0 20px 20px; }
-  .cam-toggle {
-    width: 100%;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 12px;
-    color: var(--text);
-    font-family: 'Noto Sans JP', sans-serif;
-    font-size: 13px;
-    font-weight: 300;
-    cursor: pointer;
-    letter-spacing: 0.05em;
-    transition: all 0.15s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-  .cam-toggle.active {
-    border-color: var(--red);
-    color: var(--red);
-  }
-  .cam-toggle .dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--text-dim);
-    transition: background 0.15s;
-  }
-  .cam-toggle.active .dot { background: var(--red); }
-
-  .viewfinder-wrap {
-    position: relative;
-    margin-top: 12px;
-    border-radius: 8px;
     overflow: hidden;
-    background: #000;
-    display: none;
-    aspect-ratio: 4/3;
   }
-  .viewfinder-wrap.visible { display: block; }
 
+  #app {
+    width: 100dvw;
+    height: 100dvh;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Camera layer */
+  #camLayer {
+    position: absolute;
+    inset: 0;
+    background: #000;
+    z-index: 0;
+  }
   #camVideo {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    display: block;
+    display: none;
   }
-
-  /* Overlay frame */
   #overlayCanvas {
     position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
+    inset: 0;
+    width: 100%;
+    height: 100%;
     pointer-events: none;
   }
+  #camPlaceholder {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    opacity: 0.3;
+  }
+  .ph-icon {
+    width: 52px; height: 40px;
+    border: 1.5px solid var(--text-dim);
+    border-radius: 6px;
+    position: relative;
+  }
+  .ph-icon::before {
+    content: '';
+    position: absolute;
+    top: -9px; left: 50%;
+    transform: translateX(-50%);
+    width: 14px; height: 8px;
+    border: 1.5px solid var(--text-dim);
+    border-radius: 3px 3px 0 0;
+    border-bottom: none;
+  }
+  .ph-icon::after {
+    content: '';
+    position: absolute;
+    inset: 7px;
+    border-radius: 50%;
+    border: 1.5px solid var(--text-dim);
+  }
+  #camPlaceholder p {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 0.1em;
+  }
 
-  /* Aspect ratio guides under viewfinder */
-  .frame-info {
-    margin-top: 8px;
+  /* Panel */
+  #panel {
+    position: relative;
+    z-index: 10;
+    margin-top: auto;
+    background: rgba(8,10,13,0.93);
+    backdrop-filter: blur(24px) saturate(1.5);
+    -webkit-backdrop-filter: blur(24px) saturate(1.5);
+    border-top: 1px solid var(--border);
+    padding: 14px 18px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 13px;
+  }
+
+  .top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .app-title {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--text-dim);
+    text-transform: uppercase;
+  }
+  #camBtn {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 7px 14px;
+    cursor: pointer;
+    transition: all 0.18s;
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 300;
+    font-size: 12px;
+    color: var(--text);
+  }
+  #camBtn.active {
+    background: var(--red-dim);
+    border-color: var(--red);
+    color: var(--red);
+  }
+  .cam-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--text-dim);
+    transition: all 0.18s;
+    flex-shrink: 0;
+  }
+  #camBtn.active .cam-dot {
+    background: var(--red);
+    box-shadow: 0 0 6px var(--red);
+    animation: blink 1.4s ease-in-out infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.35} }
+
+  /* Sensor */
+  .sensor-tabs { display: flex; gap: 6px; }
+  .s-tab {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    padding: 9px 0;
+    cursor: pointer;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    transition: all 0.14s;
+  }
+  .s-tab .tn { font-size: 12px; color: var(--text); font-weight: 400; }
+  .s-tab .td { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--text-dim); }
+  .s-tab.active { background: var(--accent-dim); border-color: var(--accent); }
+  .s-tab.active .tn { color: var(--accent); }
+  .s-tab.active .td { color: rgba(90,172,255,0.5); }
+
+  /* Focal */
+  .focal-block { display: flex; flex-direction: column; gap: 8px; }
+  .focal-hdr {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+  }
+  .fl { font-size: 9px; letter-spacing: 0.15em; color: var(--text-dim); text-transform: uppercase; }
+  .fv {
+    font-family: 'DM Mono', monospace;
+    font-size: 28px;
+    font-weight: 300;
+    color: var(--text-bright);
+    line-height: 1;
+  }
+  .fv em { font-style: normal; font-size: 13px; color: var(--text-dim); margin-left: 3px; }
+
+  .slider-wrap { position: relative; height: 34px; display: flex; align-items: center; }
+  input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 2px;
+    background: transparent;
+    outline: none;
+    cursor: pointer;
+    position: relative;
+    z-index: 2;
+  }
+  input[type=range]::-webkit-slider-runnable-track {
+    height: 2px;
+    background: var(--border);
+    border-radius: 1px;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 12px var(--accent-glow);
+    margin-top: -11px;
+    cursor: pointer;
+    transition: box-shadow 0.15s;
+  }
+  input[type=range]:active::-webkit-slider-thumb {
+    box-shadow: 0 0 20px var(--accent-glow);
+  }
+  .track-fill {
+    position: absolute;
+    left: 0; top: 50%;
+    transform: translateY(-50%);
+    height: 2px;
+    background: var(--accent);
+    border-radius: 1px;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .tick-row { display: flex; justify-content: space-between; padding: 0 2px; }
+  .tick {
+    font-family: 'DM Mono', monospace;
+    font-size: 8px;
+    color: var(--text-dim);
+    cursor: pointer;
+    padding: 3px 1px;
+    transition: color 0.12s;
+    user-select: none;
+  }
+  .tick.active { color: var(--accent); }
+
+  /* Bottom row */
+  .bottom-row { display: flex; align-items: center; gap: 10px; }
+  .aspect-tabs { display: flex; gap: 5px; flex-shrink: 0; }
+  .a-tab {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 7px 9px;
     font-family: 'DM Mono', monospace;
     font-size: 10px;
     color: var(--text-dim);
-    text-align: center;
-    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: all 0.12s;
+    white-space: nowrap;
   }
+  .a-tab.active { background: var(--accent-dim); border-color: var(--accent); color: var(--accent); }
 
-  .cam-error {
+  .fov-display { flex: 1; display: flex; gap: 6px; justify-content: flex-end; }
+  .fov-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 5px 8px;
+    min-width: 46px;
+  }
+  .fi-l { font-size: 8px; letter-spacing: 0.1em; color: var(--text-dim); text-transform: uppercase; }
+  .fi-v { font-family: 'DM Mono', monospace; font-size: 14px; color: var(--accent); font-weight: 400; }
+
+  #camError {
     display: none;
-    margin-top: 10px;
-    padding: 10px 14px;
-    background: rgba(255,90,90,0.1);
+    padding: 9px 12px;
+    background: var(--red-dim);
     border: 1px solid rgba(255,90,90,0.3);
     border-radius: 6px;
-    font-size: 12px;
-    color: var(--red);
-    line-height: 1.6;
-  }
-
-  /* ── Orientation notice ── */
-  .orient-note {
-    margin: 0 20px 12px;
-    padding: 8px 12px;
-    background: var(--accent-dim);
-    border-left: 2px solid var(--accent);
-    border-radius: 0 4px 4px 0;
     font-size: 11px;
-    color: var(--accent);
-    letter-spacing: 0.04em;
-    line-height: 1.6;
-    display: none;
+    color: var(--red);
+    line-height: 1.7;
   }
 </style>
 </head>
 <body>
+<div id="app">
 
-<header>
-  <h1>Directors Finder</h1>
-  <span>画角確認</span>
-</header>
-
-<div class="controls">
-  <!-- Sensor -->
-  <div>
-    <div class="field-label">センサーサイズ</div>
-    <div class="sensor-grid" id="sensorGrid"></div>
-  </div>
-
-  <!-- Focal Length -->
-  <div>
-    <div class="field-label">焦点距離</div>
-    <div class="focal-row">
-      <input type="number" id="focalInput" class="focal-input" value="600" min="1" max="2000" inputmode="numeric">
-      <span class="focal-unit">mm</span>
+  <div id="camLayer">
+    <div id="camPlaceholder">
+      <div class="ph-icon"></div>
+      <p>カメラを起動する</p>
     </div>
-    <div style="height:10px"></div>
-    <div class="presets" id="presets"></div>
-  </div>
-</div>
-
-<!-- Results -->
-<div class="result-bar">
-  <div class="result-item">
-    <span class="r-label">水平</span>
-    <span class="r-value" id="hFov">—</span>
-    <span class="r-unit">°</span>
-  </div>
-  <div class="result-item">
-    <span class="r-label">垂直</span>
-    <span class="r-value" id="vFov">—</span>
-    <span class="r-unit">°</span>
-  </div>
-  <div class="result-item">
-    <span class="r-label">対角</span>
-    <span class="r-value" id="dFov">—</span>
-    <span class="r-unit">°</span>
-  </div>
-</div>
-<div class="eq-note" id="eqNote"></div>
-
-<div class="divider"></div>
-
-<!-- Camera -->
-<div class="camera-section">
-  <div class="field-label" style="margin-bottom:10px">ファインダービュー</div>
-  <button class="cam-toggle" id="camToggle">
-    <span class="dot"></span>
-    カメラを起動する
-  </button>
-  <div class="cam-error" id="camError">カメラへのアクセスが許可されていません。<br>ブラウザの設定からカメラを許可してください。</div>
-  <div class="viewfinder-wrap" id="viewfinder">
     <video id="camVideo" autoplay playsinline muted></video>
     <canvas id="overlayCanvas"></canvas>
   </div>
-  <div class="frame-info" id="frameInfo"></div>
+
+  <div id="panel">
+
+    <div class="top-bar">
+      <span class="app-title">Directors Finder</span>
+      <button id="camBtn">
+        <span class="cam-dot"></span>
+        <span id="camLabel">カメラ起動</span>
+      </button>
+    </div>
+
+    <div class="sensor-tabs" id="sensorTabs">
+      <div class="s-tab active" data-id="ff">
+        <span class="tn">フルサイズ</span>
+        <span class="td">36.0 × 24.0 mm</span>
+      </div>
+      <div class="s-tab" data-id="apsc">
+        <span class="tn">APS-C</span>
+        <span class="td">23.5 × 15.6 mm</span>
+      </div>
+    </div>
+
+    <div class="focal-block">
+      <div class="focal-hdr">
+        <span class="fl">焦点距離</span>
+        <div class="fv"><span id="fDisp">200</span><em>mm</em></div>
+      </div>
+      <div class="slider-wrap">
+        <div class="track-fill" id="trackFill"></div>
+        <input type="range" id="fSlider" min="0" step="1" value="9">
+      </div>
+      <div class="tick-row" id="tickRow"></div>
+    </div>
+
+    <div class="bottom-row">
+      <div class="aspect-tabs" id="aspectTabs">
+        <div class="a-tab active" data-ar="3:2">3:2</div>
+        <div class="a-tab" data-ar="1:1">1:1</div>
+        <div class="a-tab" data-ar="16:9">16:9</div>
+        <div class="a-tab" data-ar="21:9">21:9</div>
+      </div>
+      <div class="fov-display">
+        <div class="fov-item"><span class="fi-l">水平</span><span class="fi-v" id="hFov">—</span></div>
+        <div class="fov-item"><span class="fi-l">垂直</span><span class="fi-v" id="vFov">—</span></div>
+        <div class="fov-item"><span class="fi-l">対角</span><span class="fi-v" id="dFov">—</span></div>
+      </div>
+    </div>
+
+    <div id="camError"></div>
+  </div>
 </div>
 
 <script>
-// ── Sensor data ──
-const SENSORS = [
-  { id: 'ff',   name: 'フルサイズ', label: '36.0 × 24.0 mm', w: 36.0, h: 24.0 },
-  { id: 'apsc', name: 'APS-C',      label: '23.5 × 15.6 mm', w: 23.5, h: 15.6 },
-  { id: 'mft',  name: 'MFT',        label: '17.3 × 13.0 mm', w: 17.3, h: 13.0 },
-  { id: 'sp',   name: 'スマートフォン', label: '6.4 × 4.8 mm',  w: 6.4,  h: 4.8  },
-];
-
-const PRESETS_BY_SENSOR = {
-  ff:   [24, 50, 85, 135, 200, 300, 400, 600],
-  apsc: [16, 35, 50, 85, 200, 300, 400, 600],
-  mft:  [12, 25, 50, 100, 200, 300],
-  sp:   [13, 26, 52, 77],
+const SENSORS = {
+  ff:   { w: 36.0, h: 24.0 },
+  apsc: { w: 23.5, h: 15.6 },
 };
+const STEPS = [20,24,28,35,50,58,85,105,135,200,300,400,500,600];
+const ASPECTS = { '1:1':[1,1], '3:2':[3,2], '16:9':[16,9], '21:9':[21,9] };
 
-// FF equivalent multipliers
-const CROP = { ff: 1.0, apsc: 1.5, mft: 2.0, sp: 5.6 };
-
-let currentSensor = 'apsc';
+let sensor = 'ff';
+let fIdx = 9;
+let ar = '3:2';
 let stream = null;
-let rafId = null;
+let raf = null;
 
-// ── Build sensor chips ──
-const grid = document.getElementById('sensorGrid');
-SENSORS.forEach(s => {
-  const el = document.createElement('div');
-  el.className = 'sensor-chip' + (s.id === currentSensor ? ' active' : '');
-  el.innerHTML = `<span class="chip-name">${s.name}</span><span class="chip-size">${s.label}</span>`;
-  el.addEventListener('click', () => selectSensor(s.id));
-  el.dataset.id = s.id;
-  grid.appendChild(el);
+// Slider setup
+const slider = document.getElementById('fSlider');
+slider.max = STEPS.length - 1;
+slider.value = fIdx;
+
+// Ticks
+const tickRow = document.getElementById('tickRow');
+STEPS.forEach((f, i) => {
+  const t = document.createElement('div');
+  t.className = 'tick' + (i === fIdx ? ' active' : '');
+  t.textContent = f;
+  t.addEventListener('click', () => setFocal(i));
+  tickRow.appendChild(t);
 });
 
-function selectSensor(id) {
-  currentSensor = id;
-  document.querySelectorAll('.sensor-chip').forEach(c => {
-    c.classList.toggle('active', c.dataset.id === id);
-  });
-  buildPresets();
-  calculate();
-  drawOverlay();
+function setFocal(i) {
+  fIdx = i;
+  slider.value = i;
+  document.getElementById('fDisp').textContent = STEPS[i];
+  document.querySelectorAll('.tick').forEach((t, j) => t.classList.toggle('active', j === i));
+  updateFill();
+  calc();
+  draw();
 }
 
-// ── Presets ──
-function buildPresets() {
-  const wrap = document.getElementById('presets');
-  wrap.innerHTML = '';
-  (PRESETS_BY_SENSOR[currentSensor] || []).forEach(f => {
-    const b = document.createElement('button');
-    b.className = 'preset-btn';
-    b.textContent = f + 'mm';
-    b.addEventListener('click', () => {
-      document.getElementById('focalInput').value = f;
-      calculate();
-      drawOverlay();
-    });
-    wrap.appendChild(b);
-  });
+function updateFill() {
+  const pct = fIdx / (STEPS.length - 1) * 100;
+  document.getElementById('trackFill').style.width = pct + '%';
 }
 
-// ── Calculate FOV ──
-function fov(sensorDim, focal) {
-  return 2 * Math.atan(sensorDim / (2 * focal)) * (180 / Math.PI);
-}
+slider.addEventListener('input', () => setFocal(+slider.value));
 
-function calculate() {
-  const f = parseFloat(document.getElementById('focalInput').value);
-  if (!f || f <= 0) return;
-  const s = SENSORS.find(x => x.id === currentSensor);
-  const h = fov(s.w, f).toFixed(1);
-  const v = fov(s.h, f).toFixed(1);
-  const diag = Math.sqrt(s.w ** 2 + s.h ** 2);
-  const d = fov(diag, f).toFixed(1);
-  document.getElementById('hFov').textContent = h;
-  document.getElementById('vFov').textContent = v;
-  document.getElementById('dFov').textContent = d;
-
-  // Equivalent note
-  if (currentSensor !== 'ff') {
-    const eq = Math.round(f * CROP[currentSensor]);
-    document.getElementById('eqNote').textContent = `フルサイズ換算 ≈ ${eq}mm`;
-  } else {
-    document.getElementById('eqNote').textContent = '';
-  }
-}
-
-document.getElementById('focalInput').addEventListener('input', () => {
-  calculate();
-  drawOverlay();
+// Sensor
+document.getElementById('sensorTabs').addEventListener('click', e => {
+  const tab = e.target.closest('.s-tab');
+  if (!tab) return;
+  sensor = tab.dataset.id;
+  document.querySelectorAll('.s-tab').forEach(t => t.classList.toggle('active', t === tab));
+  calc(); draw();
 });
 
-// ── Camera ──
-const camToggle = document.getElementById('camToggle');
-const viewfinder = document.getElementById('viewfinder');
-const camVideo = document.getElementById('camVideo');
-const camError = document.getElementById('camError');
-const canvas = document.getElementById('overlayCanvas');
-const ctx = canvas.getContext('2d');
-
-camToggle.addEventListener('click', async () => {
-  if (stream) {
-    stopCamera();
-  } else {
-    await startCamera();
-  }
+// Aspect
+document.getElementById('aspectTabs').addEventListener('click', e => {
+  const tab = e.target.closest('.a-tab');
+  if (!tab) return;
+  ar = tab.dataset.ar;
+  document.querySelectorAll('.a-tab').forEach(t => t.classList.toggle('active', t === tab));
+  draw();
 });
 
-async function startCamera() {
-  camError.style.display = 'none';
+// FOV
+function fov(dim, f) {
+  return (2 * Math.atan(dim / (2 * f)) * 180 / Math.PI).toFixed(1);
+}
+function calc() {
+  const f = STEPS[fIdx];
+  const s = SENSORS[sensor];
+  document.getElementById('hFov').textContent = fov(s.w, f);
+  document.getElementById('vFov').textContent = fov(s.h, f);
+  document.getElementById('dFov').textContent = fov(Math.hypot(s.w, s.h), f);
+}
+
+// Camera
+document.getElementById('camBtn').addEventListener('click', () => {
+  stream ? stop() : start();
+});
+
+async function start() {
+  document.getElementById('camError').style.display = 'none';
   try {
     stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: 'environment', width: { ideal: 1280 }, height: { ideal: 720 } },
+      video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 } },
       audio: false
     });
-    camVideo.srcObject = stream;
-    camToggle.classList.add('active');
-    camToggle.querySelector('span:last-child').textContent = 'カメラを停止する';
-    viewfinder.classList.add('visible');
-    camVideo.onloadedmetadata = () => {
-      resizeCanvas();
-      rafId = requestAnimationFrame(loop);
-    };
-  } catch (e) {
-    camError.style.display = 'block';
+    const v = document.getElementById('camVideo');
+    v.srcObject = stream;
+    v.style.display = 'block';
+    document.getElementById('camPlaceholder').style.display = 'none';
+    const btn = document.getElementById('camBtn');
+    btn.classList.add('active');
+    document.getElementById('camLabel').textContent = 'カメラ停止';
+    v.onloadedmetadata = () => { resize(); raf = requestAnimationFrame(loop); };
+  } catch {
+    const e = document.getElementById('camError');
+    e.style.display = 'block';
+    e.textContent = 'カメラへのアクセスが許可されていません。ブラウザの設定でカメラを許可してください。';
   }
 }
 
-function stopCamera() {
-  if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
-  if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-  camVideo.srcObject = null;
-  camToggle.classList.remove('active');
-  camToggle.querySelector('span:last-child').textContent = 'カメラを起動する';
-  viewfinder.classList.remove('visible');
-  document.getElementById('frameInfo').textContent = '';
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+function stop() {
+  stream?.getTracks().forEach(t => t.stop());
+  stream = null;
+  cancelAnimationFrame(raf); raf = null;
+  const v = document.getElementById('camVideo');
+  v.srcObject = null; v.style.display = 'none';
+  document.getElementById('camPlaceholder').style.display = 'flex';
+  document.getElementById('camBtn').classList.remove('active');
+  document.getElementById('camLabel').textContent = 'カメラ起動';
+  const c = document.getElementById('overlayCanvas');
+  c.getContext('2d').clearRect(0,0,c.width,c.height);
 }
 
-function resizeCanvas() {
-  canvas.width = viewfinder.offsetWidth;
-  canvas.height = viewfinder.offsetHeight;
+function resize() {
+  const c = document.getElementById('overlayCanvas');
+  c.width = window.innerWidth;
+  c.height = window.innerHeight;
 }
+window.addEventListener('resize', () => { if (stream) { resize(); draw(); } });
 
-window.addEventListener('resize', () => {
-  if (stream) { resizeCanvas(); drawOverlay(); }
-});
+function loop() { draw(); raf = requestAnimationFrame(loop); }
 
-function loop() {
-  drawOverlay();
-  rafId = requestAnimationFrame(loop);
-}
-
-// ── Overlay drawing ──
-function drawOverlay() {
+function draw() {
   if (!stream) return;
-  const W = canvas.width, H = canvas.height;
-  ctx.clearRect(0, 0, W, H);
+  const c = document.getElementById('overlayCanvas');
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  ctx.clearRect(0,0,W,H);
 
-  const f = parseFloat(document.getElementById('focalInput').value);
-  if (!f || f <= 0) return;
-  const s = SENSORS.find(x => x.id === currentSensor);
+  const f = STEPS[fIdx];
+  const s = SENSORS[sensor];
+  const camHFov = 65; // typical smartphone rear ~26mm equiv
+  const tHFov = parseFloat(fov(s.w, f));
+  const [arW, arH] = ASPECTS[ar];
+  const clipped = tHFov >= camHFov * 0.97;
+  const hRatio = Math.min(tHFov / camHFov, 0.97);
 
-  // Smartphone camera angle of view (roughly ~28mm FF equiv horizontal)
-  const camHFov = 65; // degrees, typical smartphone rear wide camera
-  const targetHFov = fov(s.w, f);
+  const panel = document.getElementById('panel');
+  const pH = panel.offsetHeight;
+  const availH = H - pH;
 
-  // Scale: what fraction of the camera's view is our target FOV
-  let ratio = targetHFov / camHFov;
-  if (ratio > 0.97) ratio = 0.97;
+  let bW = W * hRatio;
+  let bH = bW * arH / arW;
+  if (bH > availH * 0.9) { bH = availH * 0.9; bW = bH * arW / arH; }
 
-  // Aspect ratio of chosen sensor
-  const ar = s.w / s.h;
-  // Canvas aspect
-  const canvasAr = W / H;
+  const bX = (W - bW) / 2;
+  const bY = (availH - bH) / 2;
 
-  let boxW, boxH;
-  if (ar >= canvasAr) {
-    boxW = W * ratio;
-    boxH = boxW / ar;
-  } else {
-    boxH = H * ratio * (canvasAr / ar);
-    boxW = boxH * ar;
-  }
+  // Dim
+  ctx.fillStyle = 'rgba(0,0,0,0.55)';
+  ctx.fillRect(0,0,W,bY);
+  ctx.fillRect(0,bY+bH,W,availH-bY-bH);
+  ctx.fillRect(0,bY,bX,bH);
+  ctx.fillRect(bX+bW,bY,W-bX-bW,bH);
 
-  // If target FOV is wider than camera: clamp and warn
-  const clipped = targetHFov >= camHFov;
+  const fc = clipped ? 'rgba(255,90,90,0.9)' : 'rgba(90,172,255,0.85)';
+  const gc = clipped ? 'rgba(255,90,90,0.35)' : 'rgba(90,172,255,0.3)';
 
-  const x = (W - boxW) / 2;
-  const y = (H - boxH) / 2;
+  // Frame
+  ctx.strokeStyle = fc; ctx.lineWidth = 1.5;
+  ctx.shadowColor = gc; ctx.shadowBlur = 8;
+  ctx.strokeRect(bX, bY, bW, bH);
+  ctx.shadowBlur = 0;
 
-  // Dimmed outside
-  ctx.fillStyle = 'rgba(0,0,0,0.52)';
-  ctx.fillRect(0, 0, W, y);
-  ctx.fillRect(0, y + boxH, W, H - y - boxH);
-  ctx.fillRect(0, y, x, boxH);
-  ctx.fillRect(x + boxW, y, W - x - boxW, boxH);
-
-  // Frame border
-  ctx.strokeStyle = clipped ? 'rgba(255,90,90,0.9)' : 'rgba(74,158,255,0.9)';
-  ctx.lineWidth = 1.5;
-  ctx.strokeRect(x, y, boxW, boxH);
-
-  // Corner accents
-  const cs = Math.min(boxW, boxH) * 0.12;
-  ctx.lineWidth = 2.5;
-  ctx.strokeStyle = clipped ? '#ff5a5a' : '#4a9eff';
-  const corners = [[x,y,1,1],[x+boxW,y,-1,1],[x,y+boxH,1,-1],[x+boxW,y+boxH,-1,-1]];
-  corners.forEach(([cx,cy,dx,dy]) => {
+  // Corners
+  const cs = Math.min(bW,bH) * 0.1;
+  ctx.lineWidth = 3; ctx.shadowColor = gc; ctx.shadowBlur = 14;
+  [[bX,bY,1,1],[bX+bW,bY,-1,1],[bX,bY+bH,1,-1],[bX+bW,bY+bH,-1,-1]].forEach(([x,y,dx,dy])=>{
     ctx.beginPath();
-    ctx.moveTo(cx + dx*cs, cy);
-    ctx.lineTo(cx, cy);
-    ctx.lineTo(cx, cy + dy*cs);
+    ctx.moveTo(x+dx*cs, y); ctx.lineTo(x,y); ctx.lineTo(x, y+dy*cs);
     ctx.stroke();
   });
+  ctx.shadowBlur = 0;
 
-  // Center crosshair
-  const cl = 12;
-  ctx.strokeStyle = 'rgba(255,255,255,0.4)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(W/2 - cl, H/2); ctx.lineTo(W/2 + cl, H/2);
-  ctx.moveTo(W/2, H/2 - cl); ctx.lineTo(W/2, H/2 + cl);
-  ctx.stroke();
+  // Rule of thirds
+  ctx.strokeStyle = 'rgba(255,255,255,0.07)'; ctx.lineWidth = 0.8;
+  for (let i=1;i<=2;i++){
+    ctx.beginPath(); ctx.moveTo(bX+bW*i/3,bY); ctx.lineTo(bX+bW*i/3,bY+bH); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(bX,bY+bH*i/3); ctx.lineTo(bX+bW,bY+bH*i/3); ctx.stroke();
+  }
 
-  // Info text
-  const hf = fov(s.w, f).toFixed(1);
-  document.getElementById('frameInfo').textContent =
-    clipped ? `画角 ${hf}° — カメラより広い（参考表示）` : `水平画角 ${hf}°`;
+  // Center cross
+  const cx=bX+bW/2, cy=bY+bH/2, cl=10;
+  ctx.strokeStyle='rgba(255,255,255,0.28)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(cx-cl,cy); ctx.lineTo(cx+cl,cy); ctx.moveTo(cx,cy-cl); ctx.lineTo(cx,cy+cl); ctx.stroke();
+
+  // Label
+  ctx.fillStyle = clipped ? 'rgba(255,90,90,0.85)' : 'rgba(90,172,255,0.75)';
+  ctx.font = '11px "DM Mono", monospace';
+  ctx.textAlign = 'center';
+  const lbl = clipped ? `${tHFov.toFixed(1)}° — 画角がカメラより広い` : `${tHFov.toFixed(1)}°  ${ar}`;
+  ctx.fillText(lbl, bX+bW/2, bY-9);
 }
 
-// ── Init ──
-buildPresets();
-calculate();
+// Init
+updateFill();
+calc();
 </script>
 </body>
 </html>
