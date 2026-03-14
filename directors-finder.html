@@ -14,7 +14,6 @@
 
 :root {
   --col: #5aacff;
-  --col-dim: rgba(90,172,255,0.15);
   --col-glow: rgba(90,172,255,0.28);
   --border-hi: rgba(90,172,255,0.38);
   --text: rgba(220,235,250,0.92);
@@ -53,9 +52,7 @@ html,body { width:100%; height:100%; background:#000; font-family:'Noto Sans JP'
 /* UI */
 #ui { position:fixed; inset:0; z-index:10; pointer-events:none; }
 
-/* ══════════════
-   LEFT SIDEBAR
-══════════════ */
+/* ── Left sidebar ── */
 #sidebar {
   position:absolute; left:0; top:0; bottom:0; width:72px;
   display:flex; flex-direction:column; align-items:center;
@@ -75,8 +72,6 @@ html,body { width:100%; height:100%; background:#000; font-family:'Noto Sans JP'
 .cyc-btn:active { border-color:var(--border-hi); }
 .cyc-val { font-family:'DM Mono',monospace; font-size:10px; font-weight:400; color:var(--text-bright); text-align:center; line-height:1.25; white-space:nowrap; }
 .cyc-dot { width:3px; height:3px; border-radius:50%; background:var(--text-dim); }
-
-/* Color button */
 #btnColor {
   width:60px; height:44px;
   background:var(--surface); border:1px solid var(--border);
@@ -88,90 +83,55 @@ html,body { width:100%; height:100%; background:#000; font-family:'Noto Sans JP'
 #btnColor:active { border-color:var(--border-hi); }
 #colorSwatch { width:22px; height:22px; border-radius:50%; border:2px solid rgba(255,255,255,0.2); transition:background .2s; }
 
-/* ══════════════
-   BOTTOM BAR
-   left:72px (sidebar), right:0
-   height: fixed so shutter sits at bottom-right
-══════════════ */
-#bottomBar {
-  position:absolute; left:72px; right:0; bottom:0; height:80px;
-  display:flex; align-items:center;
-  padding:0 16px;
+/* ── Focal control: top-right, 3 buttons stacked ── */
+#focalCtrl {
+  position:absolute; right:14px; top:14px;
+  display:flex; flex-direction:column; align-items:center; gap:5px;
   pointer-events:all;
-  gap:0;
 }
 
-/* Focal button (left of slider) */
-#btnFocal {
-  width:72px; flex-shrink:0;
+/* Arrow buttons */
+.arr-btn {
+  width:52px; height:40px;
   background:var(--surface); border:1px solid var(--border);
   border-radius:8px;
   backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
-  display:flex; flex-direction:column; align-items:center;
-  padding:8px 4px 6px; gap:3px;
-  cursor:pointer; transition:border-color .15s; user-select:none;
-  align-self:center;
-}
-#btnFocal:active { border-color:var(--border-hi); }
-#btnFocal .cyc-val { font-size:15px; }
-#btnFocal .cyc-dot { }
-
-/* Vertical slider — sits between focal btn and shutter */
-#sliderWrap {
-  flex:1;
-  height:100%;
   display:flex; align-items:center; justify-content:center;
-  padding:0 12px;
-  overflow:hidden;
-  transition:opacity .2s;
+  cursor:pointer; user-select:none; transition:border-color .15s;
+  color:var(--text-bright);
+  -webkit-touch-callout:none;
 }
-#sliderWrap.hidden { opacity:0; pointer-events:none; }
+.arr-btn:active { border-color:var(--border-hi); background:rgba(90,172,255,0.1); }
+.arr-btn svg { width:18px; height:18px; stroke:var(--col); stroke-width:2.5; fill:none; }
 
-/* Rotated horizontal input = vertical slider */
-.vslider-inner {
-  position:relative;
-  /* width set by JS = sliderWrap clientWidth; height is thumb size */
-  height:44px;
-  transform:rotate(-90deg);
-  transform-origin:center center;
-  flex-shrink:0;
+/* Focal value button */
+#btnFocalVal {
+  width:52px; height:52px;
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:8px;
+  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  cursor:pointer; user-select:none; transition:border-color .15s;
+  gap:0;
 }
-input[type=range].vslider {
-  -webkit-appearance:none; appearance:none;
-  width:100%; height:2px;
-  background:transparent; outline:none; cursor:pointer;
-  position:relative; z-index:2; display:block;
-}
-input[type=range].vslider::-webkit-slider-runnable-track {
-  height:2px; background:rgba(90,140,200,0.2); border-radius:1px;
-}
-input[type=range].vslider::-webkit-slider-thumb {
-  -webkit-appearance:none; width:36px; height:36px; border-radius:50%;
-  background:var(--col); box-shadow:0 0 14px var(--col-glow);
-  margin-top:-17px; cursor:pointer; transition:box-shadow .15s;
-}
-input[type=range].vslider:active::-webkit-slider-thumb { box-shadow:0 0 26px var(--col-glow); }
-.vtrack-bg {
-  position:absolute; left:0; top:50%; transform:translateY(-50%);
-  width:100%; height:2px; background:rgba(90,140,200,0.2); border-radius:1px; z-index:0;
-}
-.vtrack-fill {
-  position:absolute; left:0; top:50%; transform:translateY(-50%);
-  height:2px; background:var(--col); border-radius:1px;
-  pointer-events:none; z-index:1;
-}
+#btnFocalVal:active { border-color:var(--border-hi); background:rgba(90,172,255,0.1); }
+#fNum { font-family:'DM Mono',monospace; font-size:18px; font-weight:400; color:var(--text-bright); line-height:1; }
+#fUnit { font-family:'DM Mono',monospace; font-size:9px; color:var(--text-dim); margin-top:2px; }
 
-/* Shutter */
+/* ── Bottom: shutter only, right side ── */
+#bottomBar {
+  position:absolute; right:14px; bottom:14px;
+  pointer-events:all;
+}
 #shutterBtn {
-  width:60px; height:60px; border-radius:50%; flex-shrink:0;
+  width:62px; height:62px; border-radius:50%;
   background:#c82020; border:3px solid rgba(255,120,120,0.45);
-  box-shadow:0 0 18px rgba(200,32,32,0.5);
+  box-shadow:0 0 20px rgba(200,32,32,0.5);
   display:flex; align-items:center; justify-content:center;
-  cursor:pointer; transition:all .15s; pointer-events:all;
-  align-self:center;
+  cursor:pointer; transition:all .15s;
 }
-#shutterBtn::after { content:''; width:42px; height:42px; border-radius:50%; background:rgba(255,180,180,0.12); border:2px solid rgba(255,255,255,0.2); transition:all .12s; }
-#shutterBtn:active { transform:scale(.9); box-shadow:0 0 28px rgba(200,32,32,0.7); }
+#shutterBtn::after { content:''; width:44px; height:44px; border-radius:50%; background:rgba(255,180,180,0.12); border:2px solid rgba(255,255,255,0.2); transition:all .12s; }
+#shutterBtn:active { transform:scale(.9); box-shadow:0 0 30px rgba(200,32,32,0.7); }
 #shutterBtn:active::after { background:rgba(255,255,255,0.12); }
 
 /* Warning */
@@ -207,28 +167,25 @@ input[type=range].vslider:active::-webkit-slider-thumb { box-shadow:0 0 26px var
     <div id="btnColor"><div id="colorSwatch"></div></div>
   </div>
 
+  <!-- Focal control: top-right -->
+  <div id="focalCtrl">
+    <div class="arr-btn" id="btnUp">
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+    </div>
+    <div id="btnFocalVal">
+      <div id="fNum">50</div>
+      <div id="fUnit">mm</div>
+    </div>
+    <div class="arr-btn" id="btnDown">
+      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+  </div>
+
   <!-- Warning -->
   <div id="fovWarn">画角がカメラより広い範囲です</div>
 
-  <!-- Bottom bar -->
+  <!-- Shutter -->
   <div id="bottomBar">
-    <!-- Focal toggle button -->
-    <div class="cyc-btn" id="btnFocal" style="width:72px">
-      <div class="cyc-val" id="fNum" style="font-size:18px">50</div>
-      <div class="cyc-val" style="font-size:9px;color:var(--text-dim);margin-top:-2px">mm</div>
-      <div class="cyc-dot"></div>
-    </div>
-
-    <!-- Vertical slider -->
-    <div id="sliderWrap">
-      <div class="vslider-inner" id="vsliderInner">
-        <div class="vtrack-bg"></div>
-        <div class="vtrack-fill" id="vTrackFill"></div>
-        <input type="range" class="vslider" id="fSlider" min="0" step="1" value="4">
-      </div>
-    </div>
-
-    <!-- Shutter -->
     <button id="shutterBtn"></button>
   </div>
 
@@ -243,15 +200,14 @@ const SENSORS = {
   apsc: { w:23.5, h:15.6, label:'APS-C 23.5×15.6mm', disp:'APS-C' },
 };
 const STEPS   = [20,24,28,35,50,58,85,105,135,200];
+const RESET_IDX = 4; // 50mm
 const ASPECTS = ['3:2','1:1','16:9','21:9'];
 const AR_MAP  = {'3:2':[3,2],'1:1':[1,1],'16:9':[16,9],'21:9':[21,9]};
-// No level — 3 grid modes
 const GRIDS   = ['golden','thirds','none'];
 const GRID_LBL= { golden:'黄金比', thirds:'三分割', none:'---' };
 const PHI     = (1+Math.sqrt(5))/2;
 const G1 = 1/(PHI*PHI), G2 = 1/PHI;
-
-const COLORS = [
+const COLORS  = [
   { hex:'#5aacff', glow:'rgba(90,172,255,0.28)',  hi:'rgba(90,172,255,0.38)'  },
   { hex:'#ffd95a', glow:'rgba(255,217,90,0.28)',  hi:'rgba(255,217,90,0.38)'  },
   { hex:'#ff5a5a', glow:'rgba(255,90,90,0.28)',   hi:'rgba(255,90,90,0.38)'   },
@@ -261,23 +217,9 @@ const COLORS = [
 // ══════════════════════════════
 // State
 // ══════════════════════════════
-let S = {
-  sensorKey : 'ff',
-  fIdx      : 4,       // 50mm
-  arIdx     : 0,       // 3:2
-  gridIdx   : 0,       // golden
-  colorIdx  : 0,
-  sliderOpen: true,
-};
-
-// FOV_BASE: camera's horizontal FOV in degrees.
-// We measure it properly after the camera starts by reading the
-// video track settings (if available) or using a calibrated default.
-// Pixel 8a main cam ≈ 69°, most Android flagships 65–72°.
-// Default 68° is a reasonable middle ground.
+let S = { sensorKey:'ff', fIdx:RESET_IDX, arIdx:0, gridIdx:0, colorIdx:0 };
 let FOV_BASE = 68;
-
-let stream = null, raf = null;
+let stream=null, raf=null;
 
 // ══════════════════════════════
 // Theme
@@ -294,121 +236,89 @@ applyTheme();
 
 // ══════════════════════════════
 // Frame geometry
-// Centered exactly on the full viewport (W × H).
-// FOV_BASE is the camera's actual horizontal field of view.
-// The frame width = viewport_width × (target_hfov / camera_hfov).
 // ══════════════════════════════
 function calcFrame(W, H){
   const f = STEPS[S.fIdx];
   const s = SENSORS[S.sensorKey];
   const [arW,arH] = AR_MAP[ASPECTS[S.arIdx]];
-
-  // Target horizontal FOV for chosen sensor + focal length
   const tHFov  = 2 * Math.atan(s.w / (2*f)) * 180 / Math.PI;
-
-  // Ratio: how much of the camera's view is our target
   const hRatio = Math.min(tHFov / FOV_BASE, 0.96);
-
-  // Base 3:2 frame
-  let bW = W * hRatio;
-  let bH = bW * (2/3);
-  const maxH = H * 0.85;
-  if(bH > maxH){ bH = maxH; bW = bH * (3/2); }
-
-  // Centered on canvas
-  const bX = (W - bW) / 2;
-  const bY = (H - bH) / 2;
-
-  // Crop to selected AR
-  const selAr = arW / arH;
-  let cW, cH;
-  if(selAr >= 3/2){ cW = bW; cH = bW / selAr; }
-  else            { cH = bH; cW = bH * selAr;  }
-  const cX = bX + (bW - cW) / 2;
-  const cY = bY + (bH - cH) / 2;
-
-  return { bX,bY,bW,bH, cX,cY,cW,cH, tHFov };
+  let bW = W * hRatio, bH = bW*(2/3);
+  const maxH = H*0.85;
+  if(bH>maxH){ bH=maxH; bW=bH*(3/2); }
+  const bX=(W-bW)/2, bY=(H-bH)/2;
+  const selAr=arW/arH;
+  let cW,cH;
+  if(selAr>=3/2){ cW=bW; cH=bW/selAr; } else { cH=bH; cW=bH*selAr; }
+  const cX=bX+(bW-cW)/2, cY=bY+(bH-cH)/2;
+  return {bX,bY,bW,bH,cX,cY,cW,cH,tHFov};
 }
 
-// ══════════════════════════════
-// Helpers
-// ══════════════════════════════
-function hexRgba(hex,a){
-  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
-  return `rgba(${r},${g},${b},${a})`;
-}
+function hexRgba(hex,a){ const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16); return `rgba(${r},${g},${b},${a})`; }
 function fovDeg(dim,f){ return (2*Math.atan(dim/(2*f))*180/Math.PI).toFixed(1); }
 function curCol(){ return COLORS[S.colorIdx].hex; }
 
 // ══════════════════════════════
-// Slider layout
-// The vslider-inner rotates -90deg. Its width (before rotation) = the
-// horizontal distance it should span = sliderWrap.clientWidth.
-// After rotation that becomes the visual height.
+// Focal buttons
 // ══════════════════════════════
-function layoutSlider(){
-  const wrap  = document.getElementById('sliderWrap');
-  const inner = document.getElementById('vsliderInner');
-  const w = wrap.clientWidth;
-  if(w > 0){
-    inner.style.width = w + 'px';
-    document.getElementById('fSlider').style.width = w + 'px';
-  }
-}
-
-// ══════════════════════════════
-// Focal
-// ══════════════════════════════
-const slider = document.getElementById('fSlider');
-slider.max = STEPS.length - 1;
-slider.value = S.fIdx;
-
 function setFocal(i){
-  S.fIdx = i;
-  slider.value = i;
-  document.getElementById('fNum').textContent = STEPS[i];
-  updateVFill();
-  checkWarn();
-  draw();
-}
-function updateVFill(){
-  const pct = S.fIdx / (STEPS.length-1) * 100;
-  document.getElementById('vTrackFill').style.width = pct + '%';
+  S.fIdx = Math.max(0, Math.min(STEPS.length-1, i));
+  document.getElementById('fNum').textContent = STEPS[S.fIdx];
+  checkWarn(); draw();
 }
 function checkWarn(){
-  const f = STEPS[S.fIdx], s = SENSORS[S.sensorKey];
+  const f=STEPS[S.fIdx], s=SENSORS[S.sensorKey];
   document.getElementById('fovWarn').style.display =
-    parseFloat(fovDeg(s.w,f)) >= FOV_BASE * 0.97 ? 'block' : 'none';
+    parseFloat(fovDeg(s.w,f)) >= FOV_BASE*0.97 ? 'block' : 'none';
 }
-slider.addEventListener('input', ()=> setFocal(+slider.value));
+
+// Up: shorter focal (wider)
+document.getElementById('btnUp').addEventListener('click', ()=> setFocal(S.fIdx-1));
+// Down: longer focal (narrower)
+document.getElementById('btnDown').addEventListener('click', ()=> setFocal(S.fIdx+1));
+// Value button: reset to 50mm
+document.getElementById('btnFocalVal').addEventListener('click', ()=> setFocal(RESET_IDX));
+
+// Long-press repeat for arrow buttons
+function setupRepeat(btnId, fn){
+  const el = document.getElementById(btnId);
+  let timer=null, interval=null;
+  const start = ()=>{
+    fn();
+    timer = setTimeout(()=>{ interval = setInterval(fn, 120); }, 400);
+  };
+  const stop = ()=>{ clearTimeout(timer); clearInterval(interval); timer=null; interval=null; };
+  el.addEventListener('mousedown', start);
+  el.addEventListener('touchstart', e=>{ e.preventDefault(); start(); }, {passive:false});
+  el.addEventListener('mouseup', stop);
+  el.addEventListener('mouseleave', stop);
+  el.addEventListener('touchend', stop);
+  el.addEventListener('touchcancel', stop);
+}
+setupRepeat('btnUp',   ()=> setFocal(S.fIdx-1));
+setupRepeat('btnDown', ()=> setFocal(S.fIdx+1));
 
 // ══════════════════════════════
-// Sidebar buttons
+// Sidebar
 // ══════════════════════════════
 document.getElementById('btnSensor').addEventListener('click',()=>{
-  S.sensorKey = S.sensorKey==='ff' ? 'apsc' : 'ff';
+  S.sensorKey = S.sensorKey==='ff'?'apsc':'ff';
   document.getElementById('valSensor').textContent = SENSORS[S.sensorKey].disp;
   checkWarn(); draw();
 });
 document.getElementById('btnAspect').addEventListener('click',()=>{
-  S.arIdx = (S.arIdx+1) % ASPECTS.length;
+  S.arIdx = (S.arIdx+1)%ASPECTS.length;
   document.getElementById('valAspect').textContent = ASPECTS[S.arIdx];
   draw();
 });
 document.getElementById('btnGrid').addEventListener('click',()=>{
-  S.gridIdx = (S.gridIdx+1) % GRIDS.length;
+  S.gridIdx = (S.gridIdx+1)%GRIDS.length;
   document.getElementById('valGrid').textContent = GRID_LBL[GRIDS[S.gridIdx]];
   draw();
 });
 document.getElementById('btnColor').addEventListener('click',()=>{
-  S.colorIdx = (S.colorIdx+1) % COLORS.length;
+  S.colorIdx = (S.colorIdx+1)%COLORS.length;
   applyTheme(); draw();
-});
-
-// Focal toggle button
-document.getElementById('btnFocal').addEventListener('click',()=>{
-  S.sliderOpen = !S.sliderOpen;
-  document.getElementById('sliderWrap').classList.toggle('hidden', !S.sliderOpen);
 });
 
 // ══════════════════════════════
@@ -419,111 +329,83 @@ document.getElementById('startScreen').addEventListener('click', startCam);
 async function startCam(){
   try{
     stream = await navigator.mediaDevices.getUserMedia({
-      video:{ facingMode:{ideal:'environment'}, width:{ideal:1920} },
-      audio:false
+      video:{facingMode:{ideal:'environment'}, width:{ideal:1920}}, audio:false
     });
     await afterStart();
     calibrateFOV();
   }catch{
-    document.getElementById('startScreen').querySelector('p').textContent = 'カメラの許可が必要です';
+    document.getElementById('startScreen').querySelector('p').textContent='カメラの許可が必要です';
   }
 }
-
-// Calibrate FOV from track settings if possible
 function calibrateFOV(){
   if(!stream) return;
   const track = stream.getVideoTracks()[0];
   if(!track) return;
   try{
     const settings = track.getSettings();
-    // Chrome exposes fovH, fovV in some implementations
-    if(settings.fovH && settings.fovH > 0){
-      FOV_BASE = settings.fovH;
-      checkWarn(); draw();
-      return;
-    }
-    // Fallback: infer from focal length metadata if available
-    // Otherwise keep the calibrated default (68°)
+    if(settings.fovH && settings.fovH>0){ FOV_BASE=settings.fovH; checkWarn(); draw(); }
   }catch{}
 }
-
 async function afterStart(){
-  const v = document.getElementById('camVideo');
-  v.srcObject = stream; v.style.display = 'block';
-  document.getElementById('startScreen').style.display = 'none';
+  const v=document.getElementById('camVideo');
+  v.srcObject=stream; v.style.display='block';
+  document.getElementById('startScreen').style.display='none';
   return new Promise(res=>{
-    v.onloadedmetadata = ()=>{
-      resizeCv();
-      layoutSlider();
-      raf = requestAnimationFrame(loop);
-      res();
-    };
+    v.onloadedmetadata=()=>{ resizeCv(); raf=requestAnimationFrame(loop); res(); };
   });
 }
-
-function resizeCv(){
-  const c = document.getElementById('ov');
-  c.width  = window.innerWidth;
-  c.height = window.innerHeight;
-}
-window.addEventListener('resize',()=>{
-  if(stream){ resizeCv(); layoutSlider(); draw(); }
-});
-function loop(){ draw(); raf = requestAnimationFrame(loop); }
+function resizeCv(){ const c=document.getElementById('ov'); c.width=window.innerWidth; c.height=window.innerHeight; }
+window.addEventListener('resize',()=>{ if(stream){ resizeCv(); draw(); } });
+function loop(){ draw(); raf=requestAnimationFrame(loop); }
 
 // ══════════════════════════════
-// Draw overlay
+// Draw
 // ══════════════════════════════
 function draw(){
   if(!stream) return;
-  const c   = document.getElementById('ov');
-  const ctx = c.getContext('2d');
-  const W = c.width, H = c.height;
+  const c=document.getElementById('ov'), ctx=c.getContext('2d');
+  const W=c.width, H=c.height;
   ctx.clearRect(0,0,W,H);
 
-  const {bX,bY,bW,bH,cX,cY,cW,cH,tHFov} = calcFrame(W,H);
-  const clipped = tHFov >= FOV_BASE * 0.97;
-  const col = curCol();
+  const {bX,bY,bW,bH,cX,cY,cW,cH,tHFov}=calcFrame(W,H);
+  const clipped=tHFov>=FOV_BASE*0.97;
+  const col=curCol();
 
   // Outer dim
-  ctx.fillStyle = 'rgba(0,0,0,0.52)';
-  ctx.fillRect(0,0,W,bY);
-  ctx.fillRect(0,bY+bH,W,H-bY-bH);
-  ctx.fillRect(0,bY,bX,bH);
-  ctx.fillRect(bX+bW,bY,W-bX-bW,bH);
+  ctx.fillStyle='rgba(0,0,0,0.52)';
+  ctx.fillRect(0,0,W,bY); ctx.fillRect(0,bY+bH,W,H-bY-bH);
+  ctx.fillRect(0,bY,bX,bH); ctx.fillRect(bX+bW,bY,W-bX-bW,bH);
 
-  // Crop mask + ghost 3:2
-  if(ASPECTS[S.arIdx] !== '3:2'){
-    ctx.fillStyle = 'rgba(0,0,0,0.48)';
+  // Crop mask + ghost
+  if(ASPECTS[S.arIdx]!=='3:2'){
+    ctx.fillStyle='rgba(0,0,0,0.48)';
     if(cY>bY)        ctx.fillRect(bX,bY,   bW,cY-bY);
     if(cY+cH<bY+bH) ctx.fillRect(bX,cY+cH,bW,(bY+bH)-(cY+cH));
     if(cX>bX)        ctx.fillRect(bX,cY,   cX-bX,cH);
     if(cX+cW<bX+bW) ctx.fillRect(cX+cW,cY,(bX+bW)-(cX+cW),cH);
-    ctx.strokeStyle = hexRgba(col,0.13); ctx.lineWidth=1; ctx.setLineDash([4,5]);
+    ctx.strokeStyle=hexRgba(col,0.13); ctx.lineWidth=1; ctx.setLineDash([4,5]);
     ctx.strokeRect(bX,bY,bW,bH); ctx.setLineDash([]);
   }
 
   if(!clipped){
-    // Frame border
-    ctx.strokeStyle = hexRgba(col,0.88); ctx.lineWidth = 2.5;
-    ctx.shadowColor = hexRgba(col,0.3);  ctx.shadowBlur = 10;
-    ctx.strokeRect(cX,cY,cW,cH);
-    ctx.shadowBlur = 0;
+    // Frame
+    ctx.strokeStyle=hexRgba(col,0.88); ctx.lineWidth=2.5;
+    ctx.shadowColor=hexRgba(col,0.3); ctx.shadowBlur=10;
+    ctx.strokeRect(cX,cY,cW,cH); ctx.shadowBlur=0;
 
-    // Corner brackets
-    const cs = Math.min(cW,cH)*0.1;
-    ctx.lineWidth = 4;
-    ctx.shadowColor = hexRgba(col,0.28); ctx.shadowBlur = 14;
+    // Corners
+    const cs=Math.min(cW,cH)*0.1;
+    ctx.lineWidth=4; ctx.shadowColor=hexRgba(col,0.28); ctx.shadowBlur=14;
     [[cX,cY,1,1],[cX+cW,cY,-1,1],[cX,cY+cH,1,-1],[cX+cW,cY+cH,-1,-1]].forEach(([x,y,dx,dy])=>{
       ctx.beginPath(); ctx.moveTo(x+dx*cs,y); ctx.lineTo(x,y); ctx.lineTo(x,y+dy*cs); ctx.stroke();
     });
-    ctx.shadowBlur = 0;
+    ctx.shadowBlur=0;
 
     // Grid
-    const grid = GRIDS[S.gridIdx];
-    if(grid === 'thirds' || grid === 'golden'){
-      const ps = grid==='thirds' ? [1/3,2/3] : [G1,G2];
-      ctx.strokeStyle = hexRgba(col,0.32); ctx.lineWidth = 1.5;
+    const grid=GRIDS[S.gridIdx];
+    if(grid==='thirds'||grid==='golden'){
+      const ps=grid==='thirds'?[1/3,2/3]:[G1,G2];
+      ctx.strokeStyle=hexRgba(col,0.32); ctx.lineWidth=1.5;
       ps.forEach(p=>{
         ctx.beginPath(); ctx.moveTo(cX+cW*p,cY); ctx.lineTo(cX+cW*p,cY+cH); ctx.stroke();
         ctx.beginPath(); ctx.moveTo(cX,cY+cH*p); ctx.lineTo(cX+cW,cY+cH*p); ctx.stroke();
@@ -532,7 +414,7 @@ function draw(){
 
     // Center cross
     const cx=cX+cW/2, cy=cY+cH/2, cl=11;
-    ctx.strokeStyle = hexRgba(col,0.30); ctx.lineWidth = 1.5;
+    ctx.strokeStyle=hexRgba(col,0.30); ctx.lineWidth=1.5;
     ctx.beginPath(); ctx.moveTo(cx-cl,cy); ctx.lineTo(cx+cl,cy);
     ctx.moveTo(cx,cy-cl); ctx.lineTo(cx,cy+cl); ctx.stroke();
   }
@@ -543,25 +425,23 @@ function draw(){
 // ══════════════════════════════
 document.getElementById('shutterBtn').addEventListener('click',()=>{
   if(!stream) return;
-  const flash = document.getElementById('flash');
-  flash.style.opacity='1'; setTimeout(()=>{ flash.style.opacity='0'; },80);
+  const flash=document.getElementById('flash');
+  flash.style.opacity='1'; setTimeout(()=>{flash.style.opacity='0';},80);
 
-  const v  = document.getElementById('camVideo');
-  const vw = v.videoWidth, vh = v.videoHeight;
-  const off = document.createElement('canvas'); off.width=vw; off.height=vh;
-  const ox  = off.getContext('2d');
+  const v=document.getElementById('camVideo');
+  const vw=v.videoWidth, vh=v.videoHeight;
+  const off=document.createElement('canvas'); off.width=vw; off.height=vh;
+  const ox=off.getContext('2d');
   ox.drawImage(v,0,0,vw,vh);
 
-  const {cX,cY,cW,cH,tHFov} = calcFrame(vw,vh);
-  const clipped = tHFov >= FOV_BASE * 0.97;
-  const col = curCol();
+  const {cX,cY,cW,cH,tHFov}=calcFrame(vw,vh);
+  const clipped=tHFov>=FOV_BASE*0.97;
+  const col=curCol();
 
   if(!clipped){
-    ox.strokeStyle = hexRgba(col,0.90);
-    ox.lineWidth   = Math.max(3,vw*0.003);
+    ox.strokeStyle=hexRgba(col,0.90); ox.lineWidth=Math.max(3,vw*0.003);
     ox.strokeRect(cX,cY,cW,cH);
-    const cs = Math.min(cW,cH)*0.08;
-    ox.lineWidth = Math.max(5,vw*0.005);
+    const cs=Math.min(cW,cH)*0.08; ox.lineWidth=Math.max(5,vw*0.005);
     [[cX,cY,1,1],[cX+cW,cY,-1,1],[cX,cY+cH,1,-1],[cX+cW,cY+cH,-1,-1]].forEach(([x,y,dx,dy])=>{
       ox.beginPath(); ox.moveTo(x+dx*cs,y); ox.lineTo(x,y); ox.lineTo(x,y+dy*cs); ox.stroke();
     });
@@ -569,11 +449,7 @@ document.getElementById('shutterBtn').addEventListener('click',()=>{
 
   const f=STEPS[S.fIdx], s=SENSORS[S.sensorKey];
   const fs=Math.round(vh*0.022), pd=Math.round(vh*0.016), lh=Math.round(fs*1.55);
-  const lines=[
-    s.label,
-    `${f}mm  ${ASPECTS[S.arIdx]}`,
-    `H${fovDeg(s.w,f)}°  V${fovDeg(s.h,f)}°  D${fovDeg(Math.hypot(s.w,s.h),f)}°`,
-  ];
+  const lines=[s.label,`${f}mm  ${ASPECTS[S.arIdx]}`,`H${fovDeg(s.w,f)}°  V${fovDeg(s.h,f)}°  D${fovDeg(Math.hypot(s.w,s.h),f)}°`];
   const bkW=vw*0.44, bkH=lh*lines.length+pd*2, bkX=pd, bkY=vh-bkH-pd, rr=5;
   ox.fillStyle='rgba(0,0,0,0.52)';
   ox.beginPath();
@@ -581,8 +457,7 @@ document.getElementById('shutterBtn').addEventListener('click',()=>{
   ox.lineTo(bkX+bkW,bkY+bkH-rr); ox.arcTo(bkX+bkW,bkY+bkH,bkX+bkW-rr,bkY+bkH,rr);
   ox.lineTo(bkX+rr,bkY+bkH); ox.arcTo(bkX,bkY+bkH,bkX,bkY+bkH-rr,rr);
   ox.lineTo(bkX,bkY+rr); ox.arcTo(bkX,bkY,bkX+rr,bkY,rr); ox.closePath(); ox.fill();
-  ox.font=`300 ${fs}px "DM Mono",monospace`;
-  ox.fillStyle=hexRgba(col,0.9);
+  ox.font=`300 ${fs}px "DM Mono",monospace`; ox.fillStyle=hexRgba(col,0.9);
   lines.forEach((ln,i)=>ox.fillText(ln,bkX+pd,bkY+pd+fs+i*lh));
 
   off.toBlob(blob=>{
@@ -596,11 +471,7 @@ document.getElementById('shutterBtn').addEventListener('click',()=>{
 // ══════════════════════════════
 // Init
 // ══════════════════════════════
-updateVFill();
 setFocal(S.fIdx);
-// Layout after fonts/DOM settle
-requestAnimationFrame(()=>{ layoutSlider(); });
-window.addEventListener('load', layoutSlider);
 </script>
 </body>
 </html>
