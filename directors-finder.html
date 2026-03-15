@@ -269,19 +269,21 @@ function calcFrame(W, H){
   // Target FOV
   const tHFov = 2 * Math.atan(s.w/(2*f)) * 180/Math.PI;
 
-  // Convert FOV angles to pixel widths using a virtual focal length.
-  // This correctly handles different canvas sizes (portrait vs landscape)
-  // because it never uses a simple ratio against canvas width.
-  // camFocalPx = half-width / tan(half-angle)
   const toRad = deg => deg * Math.PI / 180;
-  const camFocalPx = (W/2) / Math.tan(toRad(FOV_BASE/2));
-  let bW = 2 * camFocalPx * Math.tan(toRad(tHFov/2));
+  // Use height as the primary axis in landscape mode.
+  // Derive vertical FOV from horizontal via 3:2 aspect ratio, then compute
+  // the frame height in pixels. This prevents the horizontal width cap from
+  // collapsing different focal lengths to the same frame size in landscape.
+  const camFocalPx = (H/2) / Math.tan(toRad(FOV_BASE * (2/3) / 2));
+  const tVFov = 2 * Math.atan(Math.tan(toRad(tHFov/2)) * (2/3)) * 180/Math.PI;
+  let bH = 2 * camFocalPx * Math.tan(toRad(tVFov/2));
+  let bW = bH * (3/2);
 
-  // Constrain to canvas with margin
-  bW = Math.min(bW, W * 0.96);
-  let bH = bW * (2/3);
-  const maxH = H * 0.90;
+  // Constrain to canvas
+  const maxH = H * 0.88;
+  const maxW = W * 0.92;
   if(bH > maxH){ bH = maxH; bW = bH*(3/2); }
+  if(bW > maxW){ bW = maxW; bH = bW*(2/3); }
 
   const bX=(W-bW)/2, bY=(H-bH)/2;
   const selAr=arW/arH;
