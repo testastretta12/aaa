@@ -265,11 +265,24 @@ function calcFrame(W, H){
   const f = STEPS[S.fIdx];
   const s = SENSORS[S.sensorKey];
   const [arW,arH] = AR_MAP[ASPECTS[S.arIdx]];
-  const tHFov  = 2 * Math.atan(s.w/(2*f)) * 180/Math.PI;
-  const hRatio = Math.min(tHFov/FOV_BASE, 0.96);
-  let bW=W*hRatio, bH=bW*(2/3);
-  const maxH=H*0.85;
-  if(bH>maxH){ bH=maxH; bW=bH*(3/2); }
+
+  // Target FOV
+  const tHFov = 2 * Math.atan(s.w/(2*f)) * 180/Math.PI;
+
+  // Convert FOV angles to pixel widths using a virtual focal length.
+  // This correctly handles different canvas sizes (portrait vs landscape)
+  // because it never uses a simple ratio against canvas width.
+  // camFocalPx = half-width / tan(half-angle)
+  const toRad = deg => deg * Math.PI / 180;
+  const camFocalPx = (W/2) / Math.tan(toRad(FOV_BASE/2));
+  let bW = 2 * camFocalPx * Math.tan(toRad(tHFov/2));
+
+  // Constrain to canvas with margin
+  bW = Math.min(bW, W * 0.96);
+  let bH = bW * (2/3);
+  const maxH = H * 0.90;
+  if(bH > maxH){ bH = maxH; bW = bH*(3/2); }
+
   const bX=(W-bW)/2, bY=(H-bH)/2;
   const selAr=arW/arH;
   let cW,cH;
