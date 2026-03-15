@@ -22,6 +22,12 @@
   --red-warn: #ff5050;
   --surface: rgba(6,10,16,0.72);
   --border: rgba(90,140,200,0.16);
+
+  /* Button sizes */
+  --btn-w: 62px;   /* standard button width */
+  --btn-h: 56px;   /* standard button height */
+  --arr-w: 62px;   /* arrow button width (same) */
+  --arr-h: 36px;   /* arrow button height (smaller) */
 }
 
 * { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
@@ -52,91 +58,97 @@ html,body { width:100%; height:100%; background:#000; font-family:'Noto Sans JP'
 /* UI */
 #ui { position:fixed; inset:0; z-index:10; pointer-events:none; }
 
-/* ── Left sidebar ── */
-#sidebar {
-  position:absolute; left:0; top:0; bottom:0; width:72px;
-  display:flex; flex-direction:column; align-items:center;
-  padding:16px 0; gap:8px;
-  pointer-events:all;
+/* ════════════════════════════
+   SHARED BUTTON STYLE
+════════════════════════════ */
+.ui-btn {
+  width: var(--btn-w);
+  height: var(--btn-h);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 3px;
+  cursor: pointer; transition: border-color .15s;
+  flex-shrink: 0; user-select: none;
 }
-.cyc-btn {
-  width:60px;
-  background:var(--surface); border:1px solid var(--border);
-  border-radius:8px;
-  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
-  display:flex; flex-direction:column; align-items:center;
-  padding:8px 4px 6px; gap:3px;
-  cursor:pointer; transition:border-color .15s;
-  flex-shrink:0; user-select:none;
-}
-.cyc-btn:active { border-color:var(--border-hi); }
-.cyc-val { font-family:'DM Mono',monospace; font-size:10px; font-weight:400; color:var(--text-bright); text-align:center; line-height:1.25; white-space:nowrap; }
-.cyc-dot { width:3px; height:3px; border-radius:50%; background:var(--text-dim); }
-#btnColor {
-  width:60px; height:44px;
-  background:var(--surface); border:1px solid var(--border);
-  border-radius:8px;
-  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
-  display:flex; align-items:center; justify-content:center;
-  cursor:pointer; transition:border-color .15s; flex-shrink:0;
-}
-#btnColor:active { border-color:var(--border-hi); }
-#colorSwatch { width:22px; height:22px; border-radius:50%; border:2px solid rgba(255,255,255,0.2); transition:background .2s; }
+.ui-btn:active { border-color: var(--border-hi); background: rgba(90,172,255,0.08); }
+.btn-val { font-family:'DM Mono',monospace; font-size:11px; font-weight:400; color:var(--text-bright); text-align:center; line-height:1.25; white-space:nowrap; }
+.btn-dot { width:3px; height:3px; border-radius:50%; background:var(--text-dim); flex-shrink:0; }
 
-/* ── Focal control: top-right, 3 buttons stacked ── */
-#focalCtrl {
-  position:absolute; right:14px; top:14px;
-  display:flex; flex-direction:column; align-items:center; gap:5px;
-  pointer-events:all;
-}
+/* Color swatch inside color btn */
+#colorSwatch { width:24px; height:24px; border-radius:50%; border:2px solid rgba(255,255,255,0.2); transition:background .2s; }
 
-/* Arrow buttons */
+/* Arrow buttons — same width, shorter height */
 .arr-btn {
-  width:52px; height:40px;
-  background:var(--surface); border:1px solid var(--border);
-  border-radius:8px;
-  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
-  display:flex; align-items:center; justify-content:center;
-  cursor:pointer; user-select:none; transition:border-color .15s;
-  color:var(--text-bright);
-  -webkit-touch-callout:none;
+  width: var(--arr-w);
+  height: var(--arr-h);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: border-color .15s;
+  flex-shrink: 0; user-select: none;
 }
-.arr-btn:active { border-color:var(--border-hi); background:rgba(90,172,255,0.1); }
-.arr-btn svg { width:18px; height:18px; stroke:var(--col); stroke-width:2.5; fill:none; }
+.arr-btn:active { border-color: var(--border-hi); background: rgba(90,172,255,0.08); }
+.arr-btn svg { width:16px; height:16px; stroke:var(--col); stroke-width:2.8; fill:none; stroke-linecap:round; stroke-linejoin:round; }
 
-/* Focal value button */
+/* ════════════════════════════
+   LEFT SIDEBAR
+════════════════════════════ */
+#sideL {
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: calc(var(--btn-w) + 16px);
+  display: flex; flex-direction: column; align-items: center;
+  padding: 16px 0; gap: 8px;
+  pointer-events: all;
+}
+
+/* ════════════════════════════
+   RIGHT SIDEBAR
+════════════════════════════ */
+#sideR {
+  position: absolute; right: 0; top: 0; bottom: 0;
+  width: calc(var(--btn-w) + 16px);
+  display: flex; flex-direction: column; align-items: center;
+  padding: 16px 0; gap: 6px;
+  pointer-events: all;
+}
+
+/* Focal value button in right sidebar — taller */
 #btnFocalVal {
-  width:52px; height:52px;
-  background:var(--surface); border:1px solid var(--border);
-  border-radius:8px;
-  backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
-  display:flex; flex-direction:column; align-items:center; justify-content:center;
-  cursor:pointer; user-select:none; transition:border-color .15s;
-  gap:0;
+  width: var(--btn-w);
+  height: calc(var(--btn-h) + 8px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  cursor: pointer; transition: border-color .15s;
+  flex-shrink: 0; user-select: none; gap: 1px;
 }
-#btnFocalVal:active { border-color:var(--border-hi); background:rgba(90,172,255,0.1); }
-#fNum { font-family:'DM Mono',monospace; font-size:18px; font-weight:400; color:var(--text-bright); line-height:1; }
-#fUnit { font-family:'DM Mono',monospace; font-size:9px; color:var(--text-dim); margin-top:2px; }
+#btnFocalVal:active { border-color: var(--border-hi); background: rgba(90,172,255,0.08); }
+#fNum  { font-family:'DM Mono',monospace; font-size:20px; font-weight:400; color:var(--text-bright); line-height:1; }
+#fUnit { font-family:'DM Mono',monospace; font-size:9px; color:var(--text-dim); }
 
-/* ── Bottom: shutter only, right side ── */
-#bottomBar {
-  position:absolute; right:14px; bottom:14px;
-  pointer-events:all;
-}
+/* Shutter — bottom of right sidebar, pushed to bottom */
+#shutterWrap { margin-top: auto; }
 #shutterBtn {
-  width:62px; height:62px; border-radius:50%;
-  background:#c82020; border:3px solid rgba(255,120,120,0.45);
-  box-shadow:0 0 20px rgba(200,32,32,0.5);
-  display:flex; align-items:center; justify-content:center;
-  cursor:pointer; transition:all .15s;
+  width: 60px; height: 60px; border-radius: 50%;
+  background: #c82020; border: 3px solid rgba(255,120,120,0.45);
+  box-shadow: 0 0 20px rgba(200,32,32,0.5);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all .15s;
 }
-#shutterBtn::after { content:''; width:44px; height:44px; border-radius:50%; background:rgba(255,180,180,0.12); border:2px solid rgba(255,255,255,0.2); transition:all .12s; }
+#shutterBtn::after { content:''; width:42px; height:42px; border-radius:50%; background:rgba(255,180,180,0.12); border:2px solid rgba(255,255,255,0.2); transition:all .12s; }
 #shutterBtn:active { transform:scale(.9); box-shadow:0 0 30px rgba(200,32,32,0.7); }
 #shutterBtn:active::after { background:rgba(255,255,255,0.12); }
 
 /* Warning */
 #fovWarn {
-  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  position: absolute; top:50%; left:50%; transform:translate(-50%,-50%);
   font-family:'DM Mono',monospace; font-size:11px; color:var(--red-warn);
   letter-spacing:.06em; text-align:center; line-height:1.6;
   background:rgba(0,0,0,0.58); border-radius:6px; padding:6px 14px;
@@ -159,35 +171,47 @@ html,body { width:100%; height:100%; background:#000; font-family:'Noto Sans JP'
 
 <div id="ui">
 
-  <!-- Left sidebar -->
-  <div id="sidebar">
-    <div class="cyc-btn" id="btnSensor"><div class="cyc-val" id="valSensor">35mm</div><div class="cyc-dot"></div></div>
-    <div class="cyc-btn" id="btnAspect"><div class="cyc-val" id="valAspect">3:2</div><div class="cyc-dot"></div></div>
-    <div class="cyc-btn" id="btnGrid"><div class="cyc-val" id="valGrid">黄金比</div><div class="cyc-dot"></div></div>
-    <div id="btnColor"><div id="colorSwatch"></div></div>
+  <!-- Left sidebar: sensor / aspect / grid / color -->
+  <div id="sideL">
+    <div class="ui-btn" id="btnSensor">
+      <div class="btn-val" id="valSensor">35mm</div>
+      <div class="btn-dot"></div>
+    </div>
+    <div class="ui-btn" id="btnAspect">
+      <div class="btn-val" id="valAspect">3:2</div>
+      <div class="btn-dot"></div>
+    </div>
+    <div class="ui-btn" id="btnGrid">
+      <div class="btn-val" id="valGrid">黄金比</div>
+      <div class="btn-dot"></div>
+    </div>
+    <div class="ui-btn" id="btnColor" style="height:var(--btn-h)">
+      <div id="colorSwatch"></div>
+    </div>
   </div>
 
-  <!-- Focal control: top-right -->
-  <div id="focalCtrl">
+  <!-- Right sidebar: ▲ / focal / ▼ / shutter -->
+  <div id="sideR">
+    <!-- ▲ = tele (longer focal) -->
     <div class="arr-btn" id="btnUp">
-      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+      <svg viewBox="0 0 24 24"><polyline points="18 15 12 9 6 15"/></svg>
     </div>
     <div id="btnFocalVal">
       <div id="fNum">50</div>
       <div id="fUnit">mm</div>
     </div>
+    <!-- ▼ = wide (shorter focal) -->
     <div class="arr-btn" id="btnDown">
-      <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+
+    <div id="shutterWrap">
+      <button id="shutterBtn"></button>
     </div>
   </div>
 
   <!-- Warning -->
   <div id="fovWarn">画角がカメラより広い範囲です</div>
-
-  <!-- Shutter -->
-  <div id="bottomBar">
-    <button id="shutterBtn"></button>
-  </div>
 
 </div>
 
@@ -196,18 +220,18 @@ html,body { width:100%; height:100%; background:#000; font-family:'Noto Sans JP'
 // Constants
 // ══════════════════════════════
 const SENSORS = {
-  ff:   { w:36.0, h:24.0, label:'FF 36×24mm',        disp:'35mm'  },
-  apsc: { w:23.5, h:15.6, label:'APS-C 23.5×15.6mm', disp:'APS-C' },
+  ff:   { w:36.0, h:24.0, burnLabel:'フルサイズ', disp:'35mm'  },
+  apsc: { w:23.5, h:15.6, burnLabel:'APS-C',      disp:'APS-C' },
 };
-const STEPS   = [20,24,28,35,50,58,85,105,135,200];
+const STEPS    = [20,24,28,35,50,58,85,105,135,200];
 const RESET_IDX = 4; // 50mm
-const ASPECTS = ['3:2','1:1','16:9','21:9'];
-const AR_MAP  = {'3:2':[3,2],'1:1':[1,1],'16:9':[16,9],'21:9':[21,9]};
-const GRIDS   = ['golden','thirds','none'];
-const GRID_LBL= { golden:'黄金比', thirds:'三分割', none:'---' };
-const PHI     = (1+Math.sqrt(5))/2;
+const ASPECTS  = ['3:2','1:1','16:9','21:9'];
+const AR_MAP   = {'3:2':[3,2],'1:1':[1,1],'16:9':[16,9],'21:9':[21,9]};
+const GRIDS    = ['golden','thirds','none'];
+const GRID_LBL = { golden:'黄金比', thirds:'三分割', none:'---' };
+const PHI      = (1+Math.sqrt(5))/2;
 const G1 = 1/(PHI*PHI), G2 = 1/PHI;
-const COLORS  = [
+const COLORS   = [
   { hex:'#5aacff', glow:'rgba(90,172,255,0.28)',  hi:'rgba(90,172,255,0.38)'  },
   { hex:'#ffd95a', glow:'rgba(255,217,90,0.28)',  hi:'rgba(255,217,90,0.38)'  },
   { hex:'#ff5a5a', glow:'rgba(255,90,90,0.28)',   hi:'rgba(255,90,90,0.38)'   },
@@ -227,9 +251,9 @@ let stream=null, raf=null;
 function applyTheme(){
   const c = COLORS[S.colorIdx];
   const r = document.documentElement;
-  r.style.setProperty('--col',      c.hex);
-  r.style.setProperty('--col-glow', c.glow);
-  r.style.setProperty('--border-hi',c.hi);
+  r.style.setProperty('--col',       c.hex);
+  r.style.setProperty('--col-glow',  c.glow);
+  r.style.setProperty('--border-hi', c.hi);
   document.getElementById('colorSwatch').style.background = c.hex;
 }
 applyTheme();
@@ -241,10 +265,10 @@ function calcFrame(W, H){
   const f = STEPS[S.fIdx];
   const s = SENSORS[S.sensorKey];
   const [arW,arH] = AR_MAP[ASPECTS[S.arIdx]];
-  const tHFov  = 2 * Math.atan(s.w / (2*f)) * 180 / Math.PI;
-  const hRatio = Math.min(tHFov / FOV_BASE, 0.96);
-  let bW = W * hRatio, bH = bW*(2/3);
-  const maxH = H*0.85;
+  const tHFov  = 2 * Math.atan(s.w/(2*f)) * 180/Math.PI;
+  const hRatio = Math.min(tHFov/FOV_BASE, 0.96);
+  let bW=W*hRatio, bH=bW*(2/3);
+  const maxH=H*0.85;
   if(bH>maxH){ bH=maxH; bW=bH*(3/2); }
   const bX=(W-bW)/2, bY=(H-bH)/2;
   const selAr=arW/arH;
@@ -259,7 +283,9 @@ function fovDeg(dim,f){ return (2*Math.atan(dim/(2*f))*180/Math.PI).toFixed(1); 
 function curCol(){ return COLORS[S.colorIdx].hex; }
 
 // ══════════════════════════════
-// Focal buttons
+// Focal
+// ▲ = tele (index goes UP = longer focal)
+// ▼ = wide (index goes DOWN = shorter focal)
 // ══════════════════════════════
 function setFocal(i){
   S.fIdx = Math.max(0, Math.min(STEPS.length-1, i));
@@ -269,37 +295,26 @@ function setFocal(i){
 function checkWarn(){
   const f=STEPS[S.fIdx], s=SENSORS[S.sensorKey];
   document.getElementById('fovWarn').style.display =
-    parseFloat(fovDeg(s.w,f)) >= FOV_BASE*0.97 ? 'block' : 'none';
+    parseFloat(fovDeg(s.w,f)) >= FOV_BASE*0.97 ? 'block':'none';
 }
 
-// Up: shorter focal (wider)
-document.getElementById('btnUp').addEventListener('click', ()=> setFocal(S.fIdx-1));
-// Down: longer focal (narrower)
-document.getElementById('btnDown').addEventListener('click', ()=> setFocal(S.fIdx+1));
-// Value button: reset to 50mm
 document.getElementById('btnFocalVal').addEventListener('click', ()=> setFocal(RESET_IDX));
 
-// Long-press repeat for arrow buttons
-function setupRepeat(btnId, fn){
-  const el = document.getElementById(btnId);
-  let timer=null, interval=null;
-  const start = ()=>{
-    fn();
-    timer = setTimeout(()=>{ interval = setInterval(fn, 120); }, 400);
-  };
-  const stop = ()=>{ clearTimeout(timer); clearInterval(interval); timer=null; interval=null; };
-  el.addEventListener('mousedown', start);
-  el.addEventListener('touchstart', e=>{ e.preventDefault(); start(); }, {passive:false});
-  el.addEventListener('mouseup', stop);
-  el.addEventListener('mouseleave', stop);
-  el.addEventListener('touchend', stop);
-  el.addEventListener('touchcancel', stop);
+// Long-press repeat
+function setupRepeat(id, fn){
+  const el=document.getElementById(id);
+  let t=null, iv=null;
+  const go = ()=>{ fn(); t=setTimeout(()=>{ iv=setInterval(fn,120); },400); };
+  const stop = ()=>{ clearTimeout(t); clearInterval(iv); t=null; iv=null; };
+  el.addEventListener('mousedown', go);
+  el.addEventListener('touchstart', e=>{ e.preventDefault(); go(); },{passive:false});
+  ['mouseup','mouseleave','touchend','touchcancel'].forEach(ev=> el.addEventListener(ev,stop));
 }
-setupRepeat('btnUp',   ()=> setFocal(S.fIdx-1));
-setupRepeat('btnDown', ()=> setFocal(S.fIdx+1));
+setupRepeat('btnUp',   ()=> setFocal(S.fIdx+1)); // ▲ = tele = longer = higher index
+setupRepeat('btnDown', ()=> setFocal(S.fIdx-1)); // ▼ = wide = shorter = lower index
 
 // ══════════════════════════════
-// Sidebar
+// Sidebar buttons
 // ══════════════════════════════
 document.getElementById('btnSensor').addEventListener('click',()=>{
   S.sensorKey = S.sensorKey==='ff'?'apsc':'ff';
@@ -307,17 +322,17 @@ document.getElementById('btnSensor').addEventListener('click',()=>{
   checkWarn(); draw();
 });
 document.getElementById('btnAspect').addEventListener('click',()=>{
-  S.arIdx = (S.arIdx+1)%ASPECTS.length;
-  document.getElementById('valAspect').textContent = ASPECTS[S.arIdx];
+  S.arIdx=(S.arIdx+1)%ASPECTS.length;
+  document.getElementById('valAspect').textContent=ASPECTS[S.arIdx];
   draw();
 });
 document.getElementById('btnGrid').addEventListener('click',()=>{
-  S.gridIdx = (S.gridIdx+1)%GRIDS.length;
-  document.getElementById('valGrid').textContent = GRID_LBL[GRIDS[S.gridIdx]];
+  S.gridIdx=(S.gridIdx+1)%GRIDS.length;
+  document.getElementById('valGrid').textContent=GRID_LBL[GRIDS[S.gridIdx]];
   draw();
 });
 document.getElementById('btnColor').addEventListener('click',()=>{
-  S.colorIdx = (S.colorIdx+1)%COLORS.length;
+  S.colorIdx=(S.colorIdx+1)%COLORS.length;
   applyTheme(); draw();
 });
 
@@ -328,7 +343,7 @@ document.getElementById('startScreen').addEventListener('click', startCam);
 
 async function startCam(){
   try{
-    stream = await navigator.mediaDevices.getUserMedia({
+    stream=await navigator.mediaDevices.getUserMedia({
       video:{facingMode:{ideal:'environment'}, width:{ideal:1920}}, audio:false
     });
     await afterStart();
@@ -339,11 +354,9 @@ async function startCam(){
 }
 function calibrateFOV(){
   if(!stream) return;
-  const track = stream.getVideoTracks()[0];
-  if(!track) return;
   try{
-    const settings = track.getSettings();
-    if(settings.fovH && settings.fovH>0){ FOV_BASE=settings.fovH; checkWarn(); draw(); }
+    const settings=stream.getVideoTracks()[0].getSettings();
+    if(settings.fovH&&settings.fovH>0){ FOV_BASE=settings.fovH; checkWarn(); draw(); }
   }catch{}
 }
 async function afterStart(){
@@ -354,12 +367,15 @@ async function afterStart(){
     v.onloadedmetadata=()=>{ resizeCv(); raf=requestAnimationFrame(loop); res(); };
   });
 }
-function resizeCv(){ const c=document.getElementById('ov'); c.width=window.innerWidth; c.height=window.innerHeight; }
+function resizeCv(){
+  const c=document.getElementById('ov');
+  c.width=window.innerWidth; c.height=window.innerHeight;
+}
 window.addEventListener('resize',()=>{ if(stream){ resizeCv(); draw(); } });
 function loop(){ draw(); raf=requestAnimationFrame(loop); }
 
 // ══════════════════════════════
-// Draw
+// Draw overlay
 // ══════════════════════════════
 function draw(){
   if(!stream) return;
@@ -376,7 +392,7 @@ function draw(){
   ctx.fillRect(0,0,W,bY); ctx.fillRect(0,bY+bH,W,H-bY-bH);
   ctx.fillRect(0,bY,bX,bH); ctx.fillRect(bX+bW,bY,W-bX-bW,bH);
 
-  // Crop mask + ghost
+  // Crop mask + ghost 3:2
   if(ASPECTS[S.arIdx]!=='3:2'){
     ctx.fillStyle='rgba(0,0,0,0.48)';
     if(cY>bY)        ctx.fillRect(bX,bY,   bW,cY-bY);
@@ -426,7 +442,7 @@ function draw(){
 document.getElementById('shutterBtn').addEventListener('click',()=>{
   if(!stream) return;
   const flash=document.getElementById('flash');
-  flash.style.opacity='1'; setTimeout(()=>{flash.style.opacity='0';},80);
+  flash.style.opacity='1'; setTimeout(()=>{ flash.style.opacity='0'; },80);
 
   const v=document.getElementById('camVideo');
   const vw=v.videoWidth, vh=v.videoHeight;
@@ -434,6 +450,7 @@ document.getElementById('shutterBtn').addEventListener('click',()=>{
   const ox=off.getContext('2d');
   ox.drawImage(v,0,0,vw,vh);
 
+  // Frame on capture
   const {cX,cY,cW,cH,tHFov}=calcFrame(vw,vh);
   const clipped=tHFov>=FOV_BASE*0.97;
   const col=curCol();
@@ -447,18 +464,32 @@ document.getElementById('shutterBtn').addEventListener('click',()=>{
     });
   }
 
-  const f=STEPS[S.fIdx], s=SENSORS[S.sensorKey];
-  const fs=Math.round(vh*0.022), pd=Math.round(vh*0.016), lh=Math.round(fs*1.55);
-  const lines=[s.label,`${f}mm  ${ASPECTS[S.arIdx]}`,`H${fovDeg(s.w,f)}°  V${fovDeg(s.h,f)}°  D${fovDeg(Math.hypot(s.w,s.h),f)}°`];
-  const bkW=vw*0.44, bkH=lh*lines.length+pd*2, bkX=pd, bkY=vh-bkH-pd, rr=5;
-  ox.fillStyle='rgba(0,0,0,0.52)';
+  // Data burn-in: センサー名 + 焦点距離 のみ、文字大きめ
+  const f   = STEPS[S.fIdx];
+  const s   = SENSORS[S.sensorKey];
+  const fs  = Math.round(vh * 0.038);   // 大きめ
+  const pd  = Math.round(vh * 0.022);
+  const lh  = Math.round(fs * 1.5);
+  const lines = [ s.burnLabel, `${f}mm` ];
+
+  // Measure max line width for box
+  ox.font = `400 ${fs}px "DM Mono",monospace`;
+  const maxTW = Math.max(...lines.map(l=> ox.measureText(l).width));
+  const bkW = maxTW + pd*2;
+  const bkH = lh * lines.length + pd * 2;
+  const bkX = pd;
+  const bkY = vh - bkH - pd;
+  const rr  = 6;
+
+  ox.fillStyle='rgba(0,0,0,0.55)';
   ox.beginPath();
   ox.moveTo(bkX+rr,bkY); ox.lineTo(bkX+bkW-rr,bkY); ox.arcTo(bkX+bkW,bkY,bkX+bkW,bkY+rr,rr);
   ox.lineTo(bkX+bkW,bkY+bkH-rr); ox.arcTo(bkX+bkW,bkY+bkH,bkX+bkW-rr,bkY+bkH,rr);
   ox.lineTo(bkX+rr,bkY+bkH); ox.arcTo(bkX,bkY+bkH,bkX,bkY+bkH-rr,rr);
   ox.lineTo(bkX,bkY+rr); ox.arcTo(bkX,bkY,bkX+rr,bkY,rr); ox.closePath(); ox.fill();
-  ox.font=`300 ${fs}px "DM Mono",monospace`; ox.fillStyle=hexRgba(col,0.9);
-  lines.forEach((ln,i)=>ox.fillText(ln,bkX+pd,bkY+pd+fs+i*lh));
+
+  ox.fillStyle = hexRgba(col,0.92);
+  lines.forEach((ln,i)=> ox.fillText(ln, bkX+pd, bkY+pd+fs+i*lh));
 
   off.toBlob(blob=>{
     const url=URL.createObjectURL(blob), a=document.createElement('a'); a.href=url;
