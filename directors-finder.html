@@ -379,7 +379,7 @@ async function afterStart(){
   v.srcObject=stream; v.style.display='block';
   document.getElementById('startScreen').style.display='none';
   return new Promise(res=>{
-    v.onloadedmetadata=()=>{ resizeCv(); raf=requestAnimationFrame(loop); res(); };
+    v.onloadedmetadata=()=>{ resizeCv(); draw(); res(); };
   });
 }
 function resizeCv(){
@@ -398,12 +398,26 @@ window.addEventListener('orientationchange',()=>{ setTimeout(()=>{ if(stream){ r
 if(window.visualViewport){
   window.visualViewport.addEventListener('resize',()=>{ if(stream){ resizeCv(); draw(); } });
 }
-function loop(){ draw(); raf=requestAnimationFrame(loop); }
+function loop(){
+  // Only redraw canvas when state changes (event-driven).
+  // The video itself plays continuously via the <video> element;
+  // we just need to repaint the overlay on top.
+  raf = null; // loop stopped; draw() restarts it when needed
+}
 
 // ══════════════════════════════
 // Draw overlay
 // ══════════════════════════════
 function draw(){
+  if(!stream) return;
+  // Cancel any pending draw and schedule one — debounced via rAF
+  if(raf) cancelAnimationFrame(raf);
+  raf = requestAnimationFrame(()=>{
+    raf = null;
+    _doDraw();
+  });
+}
+function _doDraw(){
   if(!stream) return;
   const c=document.getElementById('ov'), ctx=c.getContext('2d');
   const W=c.width, H=c.height;
