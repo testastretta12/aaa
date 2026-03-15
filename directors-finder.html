@@ -383,10 +383,21 @@ async function afterStart(){
   });
 }
 function resizeCv(){
-  const c=document.getElementById('ov');
-  c.width=window.innerWidth; c.height=window.innerHeight;
+  const c = document.getElementById('ov');
+  // Use visualViewport if available (more reliable in PWA/fullscreen on Android)
+  // Fallback to screen dimensions to avoid the portrait-stuck bug in installed PWAs
+  const vvp = window.visualViewport;
+  const W = vvp ? Math.round(vvp.width)  : (screen.width  > screen.height ? screen.width  : window.innerWidth);
+  const H = vvp ? Math.round(vvp.height) : (screen.width  > screen.height ? screen.height : window.innerHeight);
+  c.width  = W;
+  c.height = H;
 }
 window.addEventListener('resize',()=>{ if(stream){ resizeCv(); draw(); } });
+// Also listen for orientation changes explicitly
+window.addEventListener('orientationchange',()=>{ setTimeout(()=>{ if(stream){ resizeCv(); draw(); } },200); });
+if(window.visualViewport){
+  window.visualViewport.addEventListener('resize',()=>{ if(stream){ resizeCv(); draw(); } });
+}
 function loop(){ draw(); raf=requestAnimationFrame(loop); }
 
 // ══════════════════════════════
